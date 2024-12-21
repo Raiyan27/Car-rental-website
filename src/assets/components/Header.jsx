@@ -51,7 +51,7 @@ const Header = () => {
         </button>
 
         {isOpen && (
-          <div className="absolute top-full right-0 bg-gray-800 w-full md:hidden flex flex-col items-center space-y-4 py-4">
+          <div className="absolute top-full right-0 bg-bluePrimary w-full md:hidden flex flex-col items-center space-y-4 py-4">
             <Link
               to="/"
               className="hover:text-yellowPrimary"

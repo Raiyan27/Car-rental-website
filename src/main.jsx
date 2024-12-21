@@ -9,6 +9,7 @@ import HomePage from "./assets/pages/HomePage.jsx";
 import AddCarPage from "./assets/pages/AddCarPage.jsx";
 import { AuthProvider } from "./assets/Auth/AuthContext.jsx";
 import { ToastContainer } from "react-toastify";
+import Register from "./assets/pages/Register.jsx";
 
 const router = createBrowserRouter([
   {
@@ -22,6 +23,10 @@ const router = createBrowserRouter([
       {
         path: "/login",
         element: <Login />,
+      },
+      {
+        path: "/register",
+        element: <Register />,
       },
       {
         path: "/add-car",
