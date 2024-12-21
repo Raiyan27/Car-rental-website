@@ -12,7 +12,7 @@ const Header = () => {
     <header className="bg-gray-800 text-white sticky top-0 z-50">
       <nav className="container mx-auto flex items-center justify-between p-4">
         <div className="flex items-center">
-          <img src="/logo.png" alt="Logo" className="h-10 mr-3" />
+          <img src="/logo.png" alt="Logo" className="h-16 mr-3" />
           <h1 className="text-xl font-bold">Gari Chai</h1>
         </div>
 
