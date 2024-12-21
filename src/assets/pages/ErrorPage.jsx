@@ -1,7 +1,7 @@
 import React from "react";
 
 const ErrorPage = () => {
-  return <div></div>;
+  return <>BHUL KORE ASCHEN TAI NA?</>;
 };
 
 export default ErrorPage;
