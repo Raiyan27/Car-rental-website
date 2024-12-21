@@ -9,7 +9,7 @@ const Header = () => {
   const toggleMenu = () => setIsOpen(!isOpen);
 
   return (
-    <header className="bg-gray-800 text-white sticky top-0 z-50">
+    <header className="bg-bluePrimary text-white sticky top-0 z-50">
       <nav className="container mx-auto flex items-center justify-between p-4">
         <div className="flex items-center">
           <img src="/logo.png" alt="Logo" className="h-16 mr-3" />
@@ -17,27 +17,27 @@ const Header = () => {
         </div>
 
         <div className="hidden md:flex space-x-6">
-          <Link to="/" className="hover:text-green-400">
+          <Link to="/" className="hover:text-yellowPrimary">
             Home
           </Link>
-          <Link to="/available-cars" className="hover:text-green-400">
+          <Link to="/available-cars" className="hover:text-yellowPrimary">
             Available Cars
           </Link>
           {user ? (
             <>
-              <Link to="/add-car" className="hover:text-green-400">
+              <Link to="/add-car" className="hover:text-yellowPrimary">
                 Add Car
               </Link>
-              <Link to="/my-cars" className="hover:text-green-400">
+              <Link to="/my-cars" className="hover:text-yellowPrimary">
                 My Cars
               </Link>
-              <Link to="/my-bookings" className="hover:text-green-400">
+              <Link to="/my-bookings" className="hover:text-yellowPrimary">
                 My Bookings
               </Link>
               <button className="hover:text-red-500">Logout</button>
             </>
           ) : (
-            <Link to="/login" className="hover:text-green-400">
+            <Link to="/login" className="hover:text-yellowPrimary">
               Log-in
             </Link>
           )}
@@ -52,12 +52,16 @@ const Header = () => {
 
         {isOpen && (
           <div className="absolute top-full right-0 bg-gray-800 w-full md:hidden flex flex-col items-center space-y-4 py-4">
-            <Link to="/" className="hover:text-green-400" onClick={toggleMenu}>
+            <Link
+              to="/"
+              className="hover:text-yellowPrimary"
+              onClick={toggleMenu}
+            >
               Home
             </Link>
             <Link
               to="/available-cars"
-              className="hover:text-green-400"
+              className="hover:text-yellowPrimary"
               onClick={toggleMenu}
             >
               Available Cars
@@ -66,21 +70,21 @@ const Header = () => {
               <>
                 <Link
                   to="/add-car"
-                  className="hover:text-green-400"
+                  className="hover:text-yellowPrimary"
                   onClick={toggleMenu}
                 >
                   Add Car
                 </Link>
                 <Link
                   to="/my-cars"
-                  className="hover:text-green-400"
+                  className="hover:text-yellowPrimary"
                   onClick={toggleMenu}
                 >
                   My Cars
                 </Link>
                 <Link
                   to="/my-bookings"
-                  className="hover:text-green-400"
+                  className="hover:text-yellowPrimary"
                   onClick={toggleMenu}
                 >
                   My Bookings
@@ -92,7 +96,7 @@ const Header = () => {
             ) : (
               <Link
                 to="/login"
-                className="hover:text-green-400"
+                className="hover:text-yellowPrimary"
                 onClick={toggleMenu}
               >
                 Log-in
