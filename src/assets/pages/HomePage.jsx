@@ -1,4 +1,3 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import { FaCar, FaDollarSign, FaRegClock, FaHeadset } from "react-icons/fa";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -10,16 +9,17 @@ const HomePage = () => {
       <section
         className="relative h-screen bg-cover bg-center flex items-center justify-center text-gray-900"
         style={{
-          backgroundImage: "url('/banner-image.jpg')",
+          backgroundImage:
+            "url('https://i.ibb.co.com/LxrDb9y/2025-G-SUV-HERO-DR.webp')",
         }}
       >
-        <div className="bg-black bg-opacity-50 p-8 text-center rounded-md shadow-lg">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">
+        <div className="bg-black bg-opacity-70 p-10 text-center rounded-md shadow-lg">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 text-white drop-shadow-md">
             Drive Your Dreams Today!
           </h1>
           <Link
             to="/available-cars"
-            className="px-6 py-3 bg-yellowPrimary text-gray-700 font-semibold rounded hover:bg-yellowSecondary"
+            className="px-8 py-4 bg-yellow-500 text-gray-900 font-semibold rounded-lg hover:bg-yellow-400 transition-all duration-300 shadow-md focus:ring-2 focus:ring-yellow-300 focus:outline-none"
           >
             View Available Cars
           </Link>

@@ -1,6 +1,9 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
+import { AuthContext } from "../Auth/AuthContext";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const AddCarPage = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +17,8 @@ const AddCarPage = () => {
   });
   const [images, setImages] = useState([]);
   const navigate = useNavigate();
+  const { currentUser } = useContext(AuthContext);
+  const { email, displayName } = currentUser;
 
   const onDrop = (acceptedFiles) => {
     setImages(acceptedFiles);
@@ -33,7 +38,25 @@ const AddCarPage = () => {
       data.append(key, formData[key]);
     });
     images.forEach((image) => data.append("images", image));
+
     data.append("bookingCount", 0);
+    data.append("email", email);
+    data.append("name", displayName);
+
+    try {
+      const response = await axios.post("http://localhost:5000/add-car", data, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.status === 201) {
+        toast.success("Car added successfully!");
+        navigate("/home");
+      }
+    } catch (error) {
+      console.error("Error submitting the form:", error);
+    }
     navigate("/home");
   };
 

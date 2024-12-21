@@ -20,6 +20,7 @@
     "react-lottie": "^1.2.10",
     "react-router-dom": "^7.1.0",
     "react-toastify": "^11.0.2",
+    "sweetalert2": "^11.15.3",
     "swiper": "^11.1.15"
   },
   "devDependencies": {

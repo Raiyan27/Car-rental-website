@@ -1,12 +1,28 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useContext, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { AuthContext } from "../Auth/AuthContext";
+import { toast } from "react-toastify";
+import { signOut, getAuth } from "firebase/auth";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
-
-  const user = false;
+  const { currentUser } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const auth = getAuth();
 
   const toggleMenu = () => setIsOpen(!isOpen);
+
+  const handleLogout = async () => {
+    console.log("clicked");
+    try {
+      await signOut(auth);
+      toast.success("You have logged out successfully!");
+      navigate("/");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      toast.error("Logout failed. Please try again.");
+    }
+  };
 
   return (
     <header className="bg-bluePrimary text-white sticky top-0 z-50">
@@ -23,7 +39,7 @@ const Header = () => {
           <Link to="/available-cars" className="hover:text-yellowPrimary">
             Available Cars
           </Link>
-          {user ? (
+          {currentUser ? (
             <>
               <Link to="/add-car" className="hover:text-yellowPrimary">
                 Add Car
@@ -34,7 +50,9 @@ const Header = () => {
               <Link to="/my-bookings" className="hover:text-yellowPrimary">
                 My Bookings
               </Link>
-              <button className="hover:text-red-500">Logout</button>
+              <button className="hover:text-red-500" onClick={handleLogout}>
+                Logout
+              </button>
             </>
           ) : (
             <Link to="/login" className="hover:text-yellowPrimary">
@@ -66,7 +84,7 @@ const Header = () => {
             >
               Available Cars
             </Link>
-            {user ? (
+            {currentUser ? (
               <>
                 <Link
                   to="/add-car"
@@ -89,7 +107,7 @@ const Header = () => {
                 >
                   My Bookings
                 </Link>
-                <button className="hover:text-red-500" onClick={toggleMenu}>
+                <button className="hover:text-red-500" onClick={handleLogout}>
                   Logout
                 </button>
               </>
