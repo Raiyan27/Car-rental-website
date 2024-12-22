@@ -108,7 +108,7 @@ const AvailableCars = () => {
                   to={`/car/${car._id}`}
                   className="block text-gray-800 mt-4 px-4 py-2 text-center bg-yellowSecondary text-gray-800 rounded-lg hover:bg-yellowPrimary transition"
                 >
-                  Book Now
+                  View Details
                 </Link>
               </div>
             </div>
