@@ -1,36 +1,135 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { toast } from "react-toastify";
+import axios from "axios";
 
-const EditModal = ({ carData, isOpen, onClose, onSubmit }) => {
-  const [formData, setFormData] = useState(carData || {});
+const EditModal = ({ carData, isOpen, onClose }) => {
+  const [formData, setFormData] = useState({
+    model: "",
+    price: "",
+    availability: "Available",
+    registration: "",
+    features: "",
+    description: "",
+    location: "",
+  });
   const [images, setImages] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
 
-  const onDrop = (acceptedFiles) => {
-    setImages(acceptedFiles);
-  };
-
-  const { getRootProps, getInputProps } = useDropzone({ onDrop });
+  useEffect(() => {
+    if (isOpen && carData) {
+      setFormData({
+        model: carData.model,
+        price: carData.price,
+        availability: carData.availability,
+        registration: carData.registration,
+        features: carData.features,
+        description: carData.description,
+        location: carData.location,
+      });
+      setImages(carData.images || []);
+      setImagePreviews(
+        carData.images ? carData.images.map((img) => ({ preview: img })) : []
+      );
+    }
+  }, [isOpen, carData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const data = new FormData();
-    Object.keys(formData).forEach((key) => data.append(key, formData[key]));
-    images.forEach((image) => data.append("images", image));
+  const onDrop = (acceptedFiles) => {
+    const maxSize = 150 * 1024;
+    const validFiles = [];
+    const filePreviews = [];
 
-    onSubmit(data);
+    acceptedFiles.forEach((file) => {
+      if (file.size > maxSize) {
+        toast.error(`${file.name} is too large. Max image size is 150KB`);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        validFiles.push(reader.result);
+        filePreviews.push({
+          name: file.name,
+          preview: URL.createObjectURL(file),
+        });
+
+        if (validFiles.length === acceptedFiles.length) {
+          setImages((prevImages) => [...prevImages, ...validFiles]);
+          setImagePreviews((prevPreviews) => [
+            ...prevPreviews,
+            ...filePreviews,
+          ]);
+        }
+      };
+      reader.onerror = (error) => {
+        console.error("Error converting files to Base64:", error);
+      };
+    });
+  };
+
+  const { getRootProps, getInputProps } = useDropzone({ onDrop });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (images.length === 0) {
+      toast.error("Please upload at least one image.");
+      return;
+    }
+
+    const payload = {
+      ...formData,
+      price: parseFloat(formData.price),
+      images,
+    };
+
+    try {
+      const response = await axios.patch(
+        `http://localhost:5000/update-car/${carData._id}`,
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        toast.success("Car updated successfully!");
+        onClose();
+      }
+    } catch (error) {
+      console.error("Error updating the car:", error);
+      toast.error("Error updating car.");
+    }
+  };
+
+  const handleRemoveImage = (index) => {
+    const newImages = [...images];
+    const newPreviews = [...imagePreviews];
+    newImages.splice(index, 1);
+    newPreviews.splice(index, 1);
+    setImages(newImages);
+    setImagePreviews(newPreviews);
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-lg mx-4 p-6">
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      style={{ overflow: "hidden" }}
+    >
+      <div
+        className="bg-white rounded-lg shadow-lg w-full max-w-lg mx-4 p-6 overflow-auto max-h-screen"
+        style={{ maxHeight: "90vh", overflowY: "auto" }}
+      >
         <h2 className="text-2xl font-bold mb-4 text-bluePrimary">Edit Car</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -44,9 +143,8 @@ const EditModal = ({ carData, isOpen, onClose, onSubmit }) => {
               type="text"
               id="model"
               name="model"
-              defaultValue={carData.model}
+              value={formData.model}
               onChange={handleChange}
-              placeholder="E.g. Toyota, Corolla"
               required
               className="w-full p-2 border border-bluePrimary rounded focus:outline-none focus:ring focus:ring-blueSecondary"
             />
@@ -63,9 +161,8 @@ const EditModal = ({ carData, isOpen, onClose, onSubmit }) => {
               type="number"
               id="price"
               name="price"
-              defaultValue={carData.price}
+              value={formData.price}
               onChange={handleChange}
-              placeholder="E.g. 50."
               required
               className="w-full p-2 border border-bluePrimary rounded focus:outline-none focus:ring focus:ring-blueSecondary"
             />
@@ -81,7 +178,7 @@ const EditModal = ({ carData, isOpen, onClose, onSubmit }) => {
             <select
               id="availability"
               name="availability"
-              defaultValue={carData.availability}
+              value={formData.availability}
               onChange={handleChange}
               className="w-full p-2 border border-bluePrimary rounded focus:outline-none focus:ring focus:ring-blueSecondary"
             >
@@ -101,9 +198,8 @@ const EditModal = ({ carData, isOpen, onClose, onSubmit }) => {
               type="text"
               id="registration"
               name="registration"
-              defaultValue={carData.registration}
+              value={formData.registration}
               onChange={handleChange}
-              placeholder="E.g. T 123 ABC"
               required
               className="w-full p-2 border border-bluePrimary rounded focus:outline-none focus:ring focus:ring-blueSecondary"
             />
@@ -120,7 +216,7 @@ const EditModal = ({ carData, isOpen, onClose, onSubmit }) => {
               type="text"
               id="features"
               name="features"
-              defaultValue={carData.features}
+              value={formData.features}
               onChange={handleChange}
               placeholder="E.g., GPS, AC, etc."
               className="w-full p-2 border border-bluePrimary rounded focus:outline-none focus:ring focus:ring-blueSecondary"
@@ -137,7 +233,7 @@ const EditModal = ({ carData, isOpen, onClose, onSubmit }) => {
             <textarea
               id="description"
               name="description"
-              defaultValue={carData.description}
+              value={formData.description}
               onChange={handleChange}
               required
               className="w-full p-2 border border-bluePrimary rounded focus:outline-none focus:ring focus:ring-blueSecondary"
@@ -155,9 +251,8 @@ const EditModal = ({ carData, isOpen, onClose, onSubmit }) => {
               type="text"
               id="location"
               name="location"
-              defaultValue={carData.location}
+              value={formData.location}
               onChange={handleChange}
-              placeholder="E.g. Dhaka, Bangladesh"
               required
               className="w-full p-2 border border-bluePrimary rounded focus:outline-none focus:ring focus:ring-blueSecondary"
             />
@@ -174,6 +269,29 @@ const EditModal = ({ carData, isOpen, onClose, onSubmit }) => {
               <input {...getInputProps()} />
               <p>Drag & drop images here, or click to select files</p>
             </div>
+          </div>
+
+          <div className="mt-4">
+            {imagePreviews.length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {imagePreviews.map((file, index) => (
+                  <div key={index} className="relative">
+                    <img
+                      src={file.preview}
+                      alt={`Preview ${file.name}`}
+                      className="w-full h-32 object-cover rounded-md"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveImage(index)}
+                      className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full p-1"
+                    >
+                      X
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="flex justify-end space-x-4">

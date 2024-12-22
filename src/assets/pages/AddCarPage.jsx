@@ -19,47 +19,97 @@ const AddCarPage = () => {
   const navigate = useNavigate();
   const { currentUser } = useContext(AuthContext);
   const { email, displayName } = currentUser;
-
-  const onDrop = (acceptedFiles) => {
-    setImages(acceptedFiles);
-  };
-
-  const { getRootProps, getInputProps } = useDropzone({ onDrop });
+  const [imagePreviews, setImagePreviews] = useState([]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
+  const onDrop = (acceptedFiles) => {
+    const maxSize = 150 * 1024;
+    const validFiles = [];
+    const filePreviews = [];
+
+    acceptedFiles.forEach((file) => {
+      if (file.size > maxSize) {
+        toast.error(`${file.name} is too large. Max image size is 150Kb`);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        validFiles.push(reader.result);
+        filePreviews.push({
+          name: file.name,
+          preview: URL.createObjectURL(file),
+        });
+
+        if (validFiles.length === acceptedFiles.length) {
+          setImages((prevImages) => [...prevImages, ...validFiles]);
+          setImagePreviews((prevPreviews) => [
+            ...prevPreviews,
+            ...filePreviews,
+          ]);
+        }
+      };
+      reader.onerror = (error) => {
+        console.error("Error converting files to Base64:", error);
+      };
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const data = new FormData();
-    Object.keys(formData).forEach((key) => {
-      data.append(key, formData[key]);
-    });
-    images.forEach((image) => data.append("images", image));
 
-    data.append("bookingCount", 0);
-    data.append("email", email);
-    data.append("name", displayName);
+    if (images.length === 0) {
+      toast.error("Please upload at least one image.");
+      return;
+    }
+
+    const user = {
+      email: email,
+      name: displayName,
+    };
+
+    const payload = {
+      ...formData,
+      price: parseFloat(formData.price),
+      user,
+      images,
+      bookingCount: 0,
+    };
 
     try {
-      const response = await axios.post("http://localhost:5000/add-car", data, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await axios.post(
+        "http://localhost:5000/add-car",
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (response.status === 201) {
         toast.success("Car added successfully!");
-        navigate("/home");
+        navigate("/");
       }
     } catch (error) {
       console.error("Error submitting the form:", error);
     }
-    navigate("/home");
   };
 
+  const handleRemoveImage = (index) => {
+    const newImages = [...images];
+    const newPreviews = [...imagePreviews];
+    newImages.splice(index, 1);
+    newPreviews.splice(index, 1);
+    setImages(newImages);
+    setImagePreviews(newPreviews);
+  };
+  const { getRootProps, getInputProps } = useDropzone({ onDrop });
   return (
     <div className="max-w-4xl mx-auto p-6 bg-yellowPrimary rounded-lg shadow-md my-8">
       <h2 className="text-2xl font-bold text-center text-bluePrimary">
@@ -195,8 +245,37 @@ const AddCarPage = () => {
             })}
           >
             <input {...getInputProps()} />
-            <p>Drag & drop images here, or click to select files</p>
+            <p>
+              Drag & drop images here, or click to select files (100kb max size)
+            </p>
           </div>
+        </div>
+
+        <div className="mt-4">
+          {/* Display preview images or file names */}
+          {imagePreviews.length > 0 && (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {imagePreviews.map((file, index) => (
+                <div key={index} className="relative">
+                  {file.preview && (
+                    <img
+                      src={file.preview}
+                      alt={`Preview ${file.name}`}
+                      className="w-full h-32 object-cover rounded-md"
+                    />
+                  )}
+                  <div className="text-center mt-2 text-sm">{file.name}</div>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveImage(index)}
+                    className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full p-1"
+                  >
+                    X
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <button

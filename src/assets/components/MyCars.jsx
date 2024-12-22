@@ -30,18 +30,18 @@ const MyCars = () => {
   useEffect(() => {
     const fetchCars = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/cars");
-        const userCars = response.data.filter(
-          (car) => car.user.email === email
-        );
-        setCars(userCars);
+        const response = await axios.get("http://localhost:5000/car", {
+          params: { email },
+        });
+
+        setCars(response.data);
       } catch (error) {
         console.error("Error fetching cars:", error);
       }
     };
 
     if (email) fetchCars();
-  }, [email]);
+  }, [cars, email]);
 
   const handleSort = (option) => {
     const sortedCars = [...cars].sort((a, b) => {
@@ -75,6 +75,7 @@ const MyCars = () => {
   };
 
   const handleDelete = async (id) => {
+    console.log(id);
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -85,7 +86,7 @@ const MyCars = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.delete(`http://localhost:5000/cars/${id}`);
+          await axios.delete(`http://localhost:5000/delete-car/${id}`);
           setCars(cars.filter((car) => car.id !== id));
           Swal.fire("Deleted!", "The car has been deleted.", "success");
         } catch (error) {
@@ -98,24 +99,6 @@ const MyCars = () => {
 
   const handleModalClose = () => {
     setIsModalOpen(false);
-  };
-
-  const handleModalSubmit = async (updatedData) => {
-    try {
-      const response = await axios.put(
-        `http://localhost:5000/cars/${selectedCar.id}`,
-        updatedData
-      );
-      const updatedCars = cars.map((car) =>
-        car.id === selectedCar.id ? { ...car, ...response.data } : car
-      );
-      setCars(updatedCars);
-      setIsModalOpen(false);
-      Swal.fire("Success!", "Car details updated successfully.", "success");
-    } catch (error) {
-      console.error("Error updating car:", error);
-      Swal.fire("Error", "Failed to update car details.", "error");
-    }
   };
 
   if (cars.length === 0) {
@@ -194,7 +177,7 @@ const MyCars = () => {
                     <FaEdit /> Edit
                   </button>
                   <button
-                    onClick={() => handleDelete(car.id)}
+                    onClick={() => handleDelete(car._id)}
                     className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-400 flex items-center justify-center gap-1"
                   >
                     <FaTrash /> Delete
@@ -210,7 +193,6 @@ const MyCars = () => {
         carData={selectedCar}
         isOpen={isModalOpen}
         onClose={handleModalClose}
-        onSubmit={handleModalSubmit}
       />
     </div>
   );

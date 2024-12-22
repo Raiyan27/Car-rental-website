@@ -19,7 +19,7 @@ const CarDetails = () => {
       }
     };
     fetchCar();
-  }, []);
+  }, [id]);
 
   const handleBooking = () => {
     Swal.fire({
@@ -74,7 +74,7 @@ const CarDetails = () => {
               <strong>Availability:</strong> {car.availability ? "Yes" : "No"}
             </p>
             <p className="text-gray-600 mb-4">
-              <strong>Features:</strong> {car.features.join(", ")}
+              <strong>Features:</strong> {car.features}
             </p>
             <p className="text-gray-600 mb-4">
               <strong>Description:</strong> {car.description}

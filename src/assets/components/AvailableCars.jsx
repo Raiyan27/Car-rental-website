@@ -45,7 +45,7 @@ const AvailableCars = () => {
             <input
               type="text"
               placeholder="Search by car model..."
-              className="pl-10 pr-4 py-2 border rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="pl-10 pr-4 py-2 border rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-yellowSecondary"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -54,7 +54,9 @@ const AvailableCars = () => {
             <button
               onClick={() => setView("grid")}
               className={`p-2 rounded-full ${
-                view === "grid" ? "bg-green-500 text-white" : "bg-gray-200"
+                view === "grid"
+                  ? "bg-yellowSecondary text-gray-800"
+                  : "bg-gray-200"
               }`}
             >
               <FaTh />
@@ -62,14 +64,16 @@ const AvailableCars = () => {
             <button
               onClick={() => setView("list")}
               className={`p-2 rounded-full ${
-                view === "list" ? "bg-green-500 text-white" : "bg-gray-200"
+                view === "list"
+                  ? "bg-yellowSecondary text-gray-800"
+                  : "bg-gray-200"
               }`}
             >
               <FaList />
             </button>
             <button
               onClick={toggleSortOrder}
-              className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-400 transition"
+              className="px-4 py-2 bg-yellowSecondary text-gray-800 rounded-lg hover:bg-yellowPrimary transition"
             >
               Sort by Price (
               {sortOrder === "asc" ? "Low to High" : "High to Low"})
@@ -102,7 +106,7 @@ const AvailableCars = () => {
                 </p>
                 <Link
                   to={`/car/${car._id}`}
-                  className="block mt-4 px-4 py-2 text-center bg-green-500 text-white rounded-lg hover:bg-green-400 transition"
+                  className="block text-gray-800 mt-4 px-4 py-2 text-center bg-yellowSecondary text-gray-800 rounded-lg hover:bg-yellowPrimary transition"
                 >
                   Book Now
                 </Link>

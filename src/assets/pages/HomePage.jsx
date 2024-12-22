@@ -1,9 +1,27 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FaCar, FaDollarSign, FaRegClock, FaHeadset } from "react-icons/fa";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
+import axios from "axios";
 
 const HomePage = () => {
+  const [cars, setCars] = useState([]);
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:5000/cars")
+      .then((response) => {
+        const sortedCars = response.data
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .slice(0, 6);
+        setCars(sortedCars);
+      })
+      .catch((error) => {
+        console.error("Error fetching cars:", error);
+      });
+  }, []);
+
   return (
     <div>
       <section
@@ -60,28 +78,36 @@ const HomePage = () => {
             Recent Listings
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {Array(6)
-              .fill()
-              .map((_, index) => (
+            {cars.length > 0 ? (
+              cars.map((car) => (
                 <div
-                  key={index}
+                  key={car._id}
                   className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow"
                 >
                   <img
-                    src={`/car-${index + 1}.jpg`}
-                    alt="Car"
+                    src={car.images[0]}
+                    alt={car.model}
                     className="w-full h-48 object-cover"
                   />
                   <div className="p-4">
-                    <h3 className="text-xl font-bold">Toyota Camry 2023</h3>
-                    <p className="text-green-500">$45/day</p>
-                    <p className="text-gray-600 text-sm">Available</p>
+                    <h3 className="text-xl font-bold">{car.model}</h3>
+                    <p className="text-green-500">${car.price}/day</p>
+                    <p
+                      className={`text-sm ${
+                        car.availability ? "text-green-500" : "text-red-500"
+                      }`}
+                    >
+                      {car.availability ? "Available" : "Not Available"}
+                    </p>
                     <p className="text-gray-500 text-xs mt-2">
-                      Added 2 days ago
+                      Added {new Date(car.createdAt).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
-              ))}
+              ))
+            ) : (
+              <p>Loading...</p>
+            )}
           </div>
         </div>
       </section>

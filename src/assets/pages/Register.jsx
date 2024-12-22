@@ -8,12 +8,14 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
 } from "../Auth/firebase.init";
+import { signOut } from "firebase/auth";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 
 const Register = () => {
   const navigate = useNavigate();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const form = e.target;
@@ -42,30 +44,34 @@ const Register = () => {
         photoURL: profilePic || "https://www.example.com/default-avatar.png",
       });
 
-      toast.success("Resiteration and Login Successful!");
-      navigate("/");
+      await signOut(auth);
+
+      toast.success("Registration Successful!");
+      navigate("/login");
     } catch (e) {
-      toast.error(`Login Failed! ${e.message}`);
+      toast.error(`Registration Failed! ${e.message}`);
       console.log(e);
     }
   };
+
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
-    const userCredential = await signInWithPopup(auth, provider);
     try {
-      toast.success("Resiteration and Login Successful!");
+      const userCredential = await signInWithPopup(auth, provider);
+      toast.success("Login Successful!");
       navigate("/");
     } catch (e) {
       toast.error(`Login Failed! ${e.message}`);
       console.log(e);
     }
   };
+
   return (
     <div>
       <div className="hero bg-base-200 min-h-screen">
         <div className="hero-content flex-col lg:flex-row-reverse">
           <div className="text-center">
-            <div className="w-96 hidden  lg:block">
+            <div className="w-96 hidden lg:block">
               <Lottie animationData={LoginAnimationData} />
             </div>
           </div>
