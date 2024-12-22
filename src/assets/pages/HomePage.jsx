@@ -19,7 +19,7 @@ const HomePage = () => {
           </h1>
           <Link
             to="/available-cars"
-            className="px-8 py-4 bg-yellow-500 text-gray-900 font-semibold rounded-lg hover:bg-yellow-400 transition-all duration-300 shadow-md focus:ring-2 focus:ring-yellow-300 focus:outline-none"
+            className="px-8 py-4 bg-yellowSecondary text-gray-900 font-semibold rounded-lg hover:bg-yellowPrimary transition-all duration-300 shadow-md focus:ring-2 focus:ring-yellow-300 focus:outline-none"
           >
             View Available Cars
           </Link>
@@ -132,7 +132,7 @@ const HomePage = () => {
                 <p className="mt-4">
                   Plan your weekend trip and save big on rentals.
                 </p>
-                <button className="mt-6 px-4 py-2 bg-yellowPrimary text-gray-700 rounded hover:bg-yellowSecondary">
+                <button className="mt-6 px-4 py-2 bg-yellowSecondary text-gray-700 rounded hover:bg-yellowPrimary">
                   Learn More
                 </button>
               </div>

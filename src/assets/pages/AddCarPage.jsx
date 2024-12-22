@@ -46,7 +46,7 @@ const AddCarPage = () => {
     try {
       const response = await axios.post("http://localhost:5000/add-car", data, {
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "multipart/form-data",
         },
       });
 

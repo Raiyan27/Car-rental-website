@@ -44,8 +44,9 @@ const EditModal = ({ carData, isOpen, onClose, onSubmit }) => {
               type="text"
               id="model"
               name="model"
-              value={formData.model}
+              defaultValue={carData.model}
               onChange={handleChange}
+              placeholder="E.g. Toyota, Corolla"
               required
               className="w-full p-2 border border-bluePrimary rounded focus:outline-none focus:ring focus:ring-blueSecondary"
             />
@@ -62,8 +63,9 @@ const EditModal = ({ carData, isOpen, onClose, onSubmit }) => {
               type="number"
               id="price"
               name="price"
-              value={formData.price}
+              defaultValue={carData.price}
               onChange={handleChange}
+              placeholder="E.g. 50."
               required
               className="w-full p-2 border border-bluePrimary rounded focus:outline-none focus:ring focus:ring-blueSecondary"
             />
@@ -79,7 +81,7 @@ const EditModal = ({ carData, isOpen, onClose, onSubmit }) => {
             <select
               id="availability"
               name="availability"
-              value={formData.availability}
+              defaultValue={carData.availability}
               onChange={handleChange}
               className="w-full p-2 border border-bluePrimary rounded focus:outline-none focus:ring focus:ring-blueSecondary"
             >
@@ -99,8 +101,9 @@ const EditModal = ({ carData, isOpen, onClose, onSubmit }) => {
               type="text"
               id="registration"
               name="registration"
-              value={formData.registration}
+              defaultValue={carData.registration}
               onChange={handleChange}
+              placeholder="E.g. T 123 ABC"
               required
               className="w-full p-2 border border-bluePrimary rounded focus:outline-none focus:ring focus:ring-blueSecondary"
             />
@@ -117,7 +120,7 @@ const EditModal = ({ carData, isOpen, onClose, onSubmit }) => {
               type="text"
               id="features"
               name="features"
-              value={formData.features}
+              defaultValue={carData.features}
               onChange={handleChange}
               placeholder="E.g., GPS, AC, etc."
               className="w-full p-2 border border-bluePrimary rounded focus:outline-none focus:ring focus:ring-blueSecondary"
@@ -134,7 +137,7 @@ const EditModal = ({ carData, isOpen, onClose, onSubmit }) => {
             <textarea
               id="description"
               name="description"
-              value={formData.description}
+              defaultValue={carData.description}
               onChange={handleChange}
               required
               className="w-full p-2 border border-bluePrimary rounded focus:outline-none focus:ring focus:ring-blueSecondary"
@@ -152,8 +155,9 @@ const EditModal = ({ carData, isOpen, onClose, onSubmit }) => {
               type="text"
               id="location"
               name="location"
-              value={formData.location}
+              defaultValue={carData.location}
               onChange={handleChange}
+              placeholder="E.g. Dhaka, Bangladesh"
               required
               className="w-full p-2 border border-bluePrimary rounded focus:outline-none focus:ring focus:ring-blueSecondary"
             />

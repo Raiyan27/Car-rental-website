@@ -1,29 +1,72 @@
-import React, { useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FaEdit, FaTrash, FaSort } from "react-icons/fa";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
-import { useDropzone } from "react-dropzone";
+import axios from "axios";
 import EditModal from "./EditModal";
+import { AuthContext } from "../Auth/AuthContext";
 
 const MyCars = () => {
   const [cars, setCars] = useState([]);
   const [sortOption, setSortOption] = useState("dateAdded");
   const [selectedCar, setSelectedCar] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [priceSortOrder, setPriceSortOrder] = useState("lowToHigh");
+  const { currentUser } = useContext(AuthContext);
+  const email = currentUser?.email;
+
+  const formatDate = (date) => {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+    const hours = String(d.getHours()).padStart(2, "0");
+    const minutes = String(d.getMinutes()).padStart(2, "0");
+
+    return `${day}-${month}-${year} ${hours}:${minutes}`;
+  };
+
+  useEffect(() => {
+    const fetchCars = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/cars");
+        const userCars = response.data.filter(
+          (car) => car.user.email === email
+        );
+        setCars(userCars);
+      } catch (error) {
+        console.error("Error fetching cars:", error);
+      }
+    };
+
+    if (email) fetchCars();
+  }, [email]);
 
   const handleSort = (option) => {
     const sortedCars = [...cars].sort((a, b) => {
-      if (option === "priceLow") return a.price - b.price;
-      if (option === "priceHigh") return b.price - a.price;
-      if (option === "dateAdded")
-        return new Date(b.dateAdded) - new Date(a.dateAdded);
-      if (option === "dateAddedOld")
-        return new Date(a.dateAdded) - new Date(b.dateAdded);
+      if (option === "priceLow" || option === "priceHigh") {
+        return priceSortOrder === "lowToHigh"
+          ? a.price - b.price
+          : b.price - a.price;
+      }
+      if (option === "dateAdded") {
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      }
+      if (option === "dateAddedOld") {
+        return new Date(a.createdAt) - new Date(b.createdAt);
+      }
       return 0;
     });
     setSortOption(option);
     setCars(sortedCars);
+  };
+
+  const togglePriceSort = () => {
+    const newSortOrder =
+      priceSortOrder === "lowToHigh" ? "highToLow" : "lowToHigh";
+    setPriceSortOrder(newSortOrder);
+    handleSort(newSortOrder === "lowToHigh" ? "priceLow" : "priceHigh");
   };
 
   const handleEdit = (car) => {
@@ -31,7 +74,7 @@ const MyCars = () => {
     setIsModalOpen(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -39,10 +82,16 @@ const MyCars = () => {
       showCancelButton: true,
       confirmButtonText: "Yes, delete it!",
       cancelButtonText: "Cancel",
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        setCars(cars.filter((car) => car.id !== id));
-        Swal.fire("Deleted!", "The car has been deleted.", "success");
+        try {
+          await axios.delete(`http://localhost:5000/cars/${id}`);
+          setCars(cars.filter((car) => car.id !== id));
+          Swal.fire("Deleted!", "The car has been deleted.", "success");
+        } catch (error) {
+          console.error("Error deleting car:", error);
+          Swal.fire("Error", "Failed to delete the car.", "error");
+        }
       }
     });
   };
@@ -51,13 +100,22 @@ const MyCars = () => {
     setIsModalOpen(false);
   };
 
-  const handleModalSubmit = (updatedData) => {
-    const updatedCars = cars.map((car) =>
-      car.id === selectedCar.id ? { ...car, ...updatedData } : car
-    );
-    setCars(updatedCars);
-    setIsModalOpen(false);
-    Swal.fire("Success!", "Car details updated successfully.", "success");
+  const handleModalSubmit = async (updatedData) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:5000/cars/${selectedCar.id}`,
+        updatedData
+      );
+      const updatedCars = cars.map((car) =>
+        car.id === selectedCar.id ? { ...car, ...response.data } : car
+      );
+      setCars(updatedCars);
+      setIsModalOpen(false);
+      Swal.fire("Success!", "Car details updated successfully.", "success");
+    } catch (error) {
+      console.error("Error updating car:", error);
+      Swal.fire("Error", "Failed to update car details.", "error");
+    }
   };
 
   if (cars.length === 0) {
@@ -75,75 +133,78 @@ const MyCars = () => {
   }
 
   return (
-    <div className="container mx-auto py-16">
-      <div className="flex justify-between items-center mb-8">
+    <div className="container mx-auto py-16 min-h-screen">
+      <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">My Cars</h1>
-        <div className="flex space-x-4 items-center">
+        <div className="flex flex-col sm:flex-row gap-2 space-x-4 items-center justify-center">
           <span>Sort By:</span>
           <button
-            className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+            className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 flex justify-center items-center"
             onClick={() => handleSort("dateAdded")}
           >
             <FaSort /> Date Added
           </button>
           <button
-            className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-            onClick={() => handleSort("priceLow")}
+            className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 flex justify-center items-center"
+            onClick={togglePriceSort}
           >
-            <FaSort /> Price (Low to High)
-          </button>
-          <button
-            className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-            onClick={() => handleSort("priceHigh")}
-          >
-            <FaSort /> Price (High to Low)
+            <FaSort />
+            {priceSortOrder === "lowToHigh"
+              ? "Price (Low to High)"
+              : "Price (High to Low)"}
           </button>
         </div>
       </div>
 
-      <table className="min-w-full bg-white rounded-lg overflow-hidden shadow">
-        <thead>
-          <tr className="bg-gray-200 text-left">
-            <th className="px-6 py-3">Car Image</th>
-            <th className="px-6 py-3">Car Model</th>
-            <th className="px-6 py-3">Daily Rental Price</th>
-            <th className="px-6 py-3">Availability</th>
-            <th className="px-6 py-3">Date Added</th>
-            <th className="px-6 py-3">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {cars.map((car) => (
-            <tr key={car.id} className="hover:bg-gray-100">
-              <td className="px-6 py-4">
-                <img
-                  src={car.image}
-                  alt={car.model}
-                  className="w-16 h-16 object-cover rounded"
-                />
-              </td>
-              <td className="px-6 py-4">{car.model}</td>
-              <td className="px-6 py-4">${car.price}/day</td>
-              <td className="px-6 py-4">{car.availability}</td>
-              <td className="px-6 py-4">{car.dateAdded}</td>
-              <td className="px-6 py-4 flex space-x-4">
-                <button
-                  onClick={() => handleEdit(car)}
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-400"
-                >
-                  <FaEdit /> Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(car.id)}
-                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-400"
-                >
-                  <FaTrash /> Delete
-                </button>
-              </td>
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white rounded-lg overflow shadow">
+          <thead>
+            <tr className="bg-gray-200 text-left">
+              <th className="px-6 py-3">Car Image</th>
+              <th className="px-6 py-3">Car Model</th>
+              <th className="px-6 py-3">Daily Rental Price</th>
+              <th className="px-6 py-3 hidden md:table-cell">Availability</th>
+              <th className="px-6 py-3 hidden md:table-cell">Date Added</th>
+              <th className="px-6 py-3">Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {cars.map((car) => (
+              <tr key={car.id} className="hover:bg-gray-100">
+                <td className="px-6 py-4">
+                  <img
+                    src={car.images[0]}
+                    alt={car.model}
+                    className="w-16 h-16 object-cover rounded"
+                  />
+                </td>
+                <td className="px-6 py-4">{car.model}</td>
+                <td className="px-6 py-4">${car.price}/day</td>
+                <td className="px-6 py-4 hidden md:table-cell">
+                  {car.availability ? "Yes" : "No"}
+                </td>
+                <td className="px-6 py-4 hidden md:table-cell">
+                  {formatDate(car.createdAt)}
+                </td>
+                <td className="px-6 py-4 flex space-x-4">
+                  <button
+                    onClick={() => handleEdit(car)}
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-400 flex items-center justify-center gap-1"
+                  >
+                    <FaEdit /> Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(car.id)}
+                    className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-400 flex items-center justify-center gap-1"
+                  >
+                    <FaTrash /> Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <EditModal
         carData={selectedCar}

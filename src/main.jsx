@@ -14,6 +14,7 @@ import PrivateRoute from "./assets/components/PrivateRoute.jsx";
 import AvailableCars from "./assets/components/AvailableCars.jsx";
 import MyCars from "./assets/components/MyCars.jsx";
 import MyBookings from "./assets/components/MyBookings.jsx";
+import CarDetails from "./assets/components/CarDetails.jsx";
 
 const router = createBrowserRouter([
   {
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
       {
         path: "/available-cars",
         element: <AvailableCars />,
+      },
+      {
+        path: "/car/:id",
+        element: <CarDetails />,
       },
       {
         path: "/add-car",
