@@ -4,6 +4,7 @@ import { FaCar, FaDollarSign, FaRegClock, FaHeadset } from "react-icons/fa";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import axios from "axios";
+import "animate.css";
 import { Helmet } from "react-helmet";
 
 const HomePage = () => {
@@ -133,7 +134,10 @@ const HomePage = () => {
                 </div>
               ))
             ) : (
-              <p>Loading...</p>
+              <div className="h-72 flex items-center justify-center flex-col gap-2 col-span-3">
+                <p>LOADING</p>
+                <div className="loading loading-spinner text-warning"></div>
+              </div>
             )}
           </div>
         </div>
@@ -141,13 +145,17 @@ const HomePage = () => {
 
       <section className="bg-gray-100 py-16">
         <div className="container mx-auto">
-          <h2 className="text-3xl font-bold mb-8 text-center">
+          <h2 className="text-3xl font-bold mb-8 text-center ">
             What Our Users Say
           </h2>
           <Swiper
             spaceBetween={30}
             slidesPerView={2}
-            autoplay={{ delay: 2000 }}
+            autoplay={{
+              delay: 2000,
+              disableOnInteraction: false,
+            }}
+            loop={true}
           >
             {reviews.map((review, index) => (
               <SwiperSlide key={index}>
@@ -175,17 +183,54 @@ const HomePage = () => {
             Special Offers
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow transform group">
-              <div className="p-6 text-center transition-transform duration-300 group-hover:animate-jiggle">
-                <h3 className="text-xl font-bold text-green-500">
-                  Get 15% Off for Weekend Rentals!
+            <div className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transform group bounce-on-hover">
+              <div className="p-6 text-center">
+                <h3 className="text-xl font-bold text-green-500 ">
+                  BMW MX-3 for $70/day!
                 </h3>
-                <p className="mt-4">
-                  Plan your weekend trip and save big on rentals.
-                </p>
-                <button className="mt-6 px-4 py-2 bg-yellowSecondary text-gray-700 rounded hover:bg-yellowPrimary">
-                  Learn More
-                </button>
+                <p className="mt-4">Get it booked right now!</p>
+                <div className="mt-6">
+                  <Link
+                    to="/available-cars"
+                    className="px-4 py-2 bg-yellowSecondary text-gray-700 rounded hover:bg-yellowPrimary"
+                  >
+                    Watch More Offers Like This!
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transform group bounce-on-hover">
+              <div className="p-6 text-center">
+                <h3 className="text-xl font-bold text-green-500 ">
+                  Audi A4 for $65/day!
+                </h3>
+                <p className="mt-4">Plan your trip today!</p>
+                <div className="mt-6">
+                  <Link
+                    to="/available-cars"
+                    className="px-4 py-2 bg-yellowSecondary text-gray-700 rounded hover:bg-yellowPrimary"
+                  >
+                    Watch More Offers Like this!
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transform group bounce-on-hover">
+              <div className="p-6 text-center">
+                <h3 className="text-xl font-bold text-green-500 ">
+                  Tesla Model Y for $90/day!
+                </h3>
+                <p className="mt-4">Drive the future today!</p>
+                <div className="mt-6">
+                  <Link
+                    to="/available-cars"
+                    className="px-4 py-2 bg-yellowSecondary text-gray-700 rounded hover:bg-yellowPrimary"
+                  >
+                    Watch More Offers Like this!
+                  </Link>
+                </div>
               </div>
             </div>
           </div>

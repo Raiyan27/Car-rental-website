@@ -28,13 +28,13 @@ const AddCarPage = () => {
   };
 
   const onDrop = (acceptedFiles) => {
-    const maxSize = 150 * 1024;
+    const maxSize = 200 * 1024;
     const validFiles = [];
     const filePreviews = [];
 
     acceptedFiles.forEach((file) => {
       if (file.size > maxSize) {
-        toast.error(`${file.name} is too large. Max image size is 150Kb`);
+        toast.error(`${file.name} is too large. Max image size is 200kb`);
         return;
       }
 

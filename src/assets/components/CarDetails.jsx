@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -6,6 +6,7 @@ import "swiper/css";
 import Swal from "sweetalert2";
 import BookingModal from "./BookingModal";
 import ShowReviewsModal from "./ShowReviewsModal";
+import { AuthContext } from "../Auth/AuthContext";
 
 const CarDetails = () => {
   const { id } = useParams();
@@ -14,6 +15,7 @@ const CarDetails = () => {
   const swiperRef = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isReviewsModalOpen, setIsReviewsModalOpen] = useState(false);
+  const { currentUser } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchCar = async () => {
@@ -35,7 +37,11 @@ const CarDetails = () => {
   };
 
   const handleBooking = () => {
-    setIsModalOpen(true);
+    if (currentUser) {
+      setIsModalOpen(true);
+    } else {
+      Swal.fire("Error", "Login to Book.", "error");
+    }
   };
 
   const handleShowReviews = () => {

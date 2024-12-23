@@ -137,7 +137,7 @@ const MyCars = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center flex-col gap-2">
-        <p>LOADING..</p>
+        <p>LOADING</p>
         <div className="loading loading-spinner text-warning"></div>
       </div>
     );

@@ -31,7 +31,9 @@ const Header = () => {
     <header className="bg-bluePrimary text-white sticky top-0 z-50">
       <nav className="container mx-auto flex items-center justify-between p-4">
         <div className="flex items-center">
-          <img src="/logo.png" alt="Logo" className="h-16 mr-3" />
+          <Link to="/">
+            <img src="/logo.png" alt="Logo" className="h-16 mr-3" />
+          </Link>
           <h1 className="text-xl font-bold">Gari Chai</h1>
         </div>
 
@@ -94,14 +96,24 @@ const Header = () => {
               </div>
             </>
           ) : (
-            <Link
-              to="/login"
-              className={`hover:text-yellowPrimary ${
-                isActive("/login") ? "text-yellowPrimary font-bold" : ""
-              }`}
-            >
-              Log-in
-            </Link>
+            <>
+              <Link
+                to="/login"
+                className={`hover:text-yellowPrimary ${
+                  isActive("/login") ? "text-yellowPrimary font-bold" : ""
+                }`}
+              >
+                Log-in
+              </Link>
+              <Link
+                to="/register"
+                className={`hover:text-yellowPrimary ${
+                  isActive("/register") ? "text-yellowPrimary font-bold" : ""
+                }`}
+              >
+                Register
+              </Link>
+            </>
           )}
         </div>
 
