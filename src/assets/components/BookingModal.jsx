@@ -1,12 +1,31 @@
-import { useState } from "react";
+import { useState, useEffect, useContext } from "react";
 import ReactDatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import axios from "axios";
 import Swal from "sweetalert2";
+import { AuthContext } from "../Auth/AuthContext";
 
 const BookingModal = ({ car, closeModal }) => {
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [error, setError] = useState("");
+  const [existingBookings, setExistingBookings] = useState([]);
+  const { currentUser } = useContext(AuthContext);
+
+  useEffect(() => {
+    const fetchExistingBookings = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:5000/car-bookings/${car._id}`
+        );
+        setExistingBookings(response.data);
+      } catch (error) {
+        console.error("Error fetching existing bookings", error);
+      }
+    };
+
+    fetchExistingBookings();
+  }, [car]);
 
   const calculateTotalPrice = () => {
     if (startDate && endDate) {
@@ -17,9 +36,9 @@ const BookingModal = ({ car, closeModal }) => {
     return 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const totalPrice = calculateTotalPrice();
-
+    const email = currentUser?.email;
     const maxBookingDuration = 30;
     const timeDifference = endDate.getTime() - startDate.getTime();
     const days = Math.ceil(timeDifference / (1000 * 3600 * 24));
@@ -28,7 +47,7 @@ const BookingModal = ({ car, closeModal }) => {
       setError("Booking duration cannot exceed 30 days.");
       return;
     }
-
+    console.log(car);
     setError("");
 
     Swal.fire({
@@ -41,22 +60,53 @@ const BookingModal = ({ car, closeModal }) => {
       confirmButtonColor: "#10B981",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, Confirm Booking",
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        Swal.fire({
-          title: "Booking Confirmed!",
-          text: `Your booking for ${
-            car.model
-          } from ${startDate.toLocaleDateString()} to ${endDate.toLocaleDateString()} has been confirmed.`,
-          icon: "success",
-          confirmButtonColor: "#10B981",
-        });
-        closeModal();
+        try {
+          const response = await axios.post(
+            "http://localhost:5000/add-booking",
+            {
+              carId: car._id,
+              carModel: car.model,
+              carImage: car.images[0],
+              startDate: startDate.toISOString(),
+              endDate: endDate.toISOString(),
+              totalPrice,
+              email,
+            }
+          );
+
+          Swal.fire({
+            title: "Booking Confirmed!",
+            text: `Your booking for ${
+              car.model
+            } from ${startDate.toLocaleDateString()} to ${endDate.toLocaleDateString()} has been confirmed.`,
+            icon: "success",
+            confirmButtonColor: "#10B981",
+          });
+
+          closeModal();
+        } catch (error) {
+          Swal.fire({
+            title: "Booking Failed",
+            text: error.response?.data?.message || "Something went wrong.",
+            icon: "error",
+            confirmButtonColor: "#d33",
+          });
+        }
       }
     });
   };
 
   const isConfirmDisabled = startDate.getTime() === endDate.getTime();
+
+  const isDateBooked = (date) => {
+    return existingBookings.some((booking) => {
+      const bookedStartDate = new Date(booking.startDate);
+      const bookedEndDate = new Date(booking.endDate);
+      return date >= bookedStartDate && date <= bookedEndDate;
+    });
+  };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -81,6 +131,29 @@ const BookingModal = ({ car, closeModal }) => {
           <p className="text-gray-600">Description: {car.description}</p>
         </div>
 
+        <div className="mb-4">
+          {existingBookings.length > 0 ? (
+            <div>
+              <h3 className="text-sm font-semibold mb-2">Existing Bookings:</h3>
+              {existingBookings.map((booking, index) => (
+                <p key={index} className="text-sm text-gray-600">
+                  The car is already booked from{" "}
+                  <span className="font-medium">
+                    {new Date(booking.startDate).toLocaleDateString()}
+                  </span>{" "}
+                  to{" "}
+                  <span className="font-medium">
+                    {new Date(booking.endDate).toLocaleDateString()}
+                  </span>
+                  .
+                </p>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-600">No existing bookings.</p>
+          )}
+        </div>
+
         <div className="flex space-x-4 mb-6">
           <div className="flex-1">
             <label className="block text-gray-800 mb-2 text-sm">
@@ -97,6 +170,7 @@ const BookingModal = ({ car, closeModal }) => {
               }}
               minDate={new Date()}
               className="w-full p-3 border border-gray-300 rounded-lg text-sm"
+              filterDate={(date) => !isDateBooked(date)}
             />
           </div>
 
@@ -107,6 +181,7 @@ const BookingModal = ({ car, closeModal }) => {
               onChange={(date) => setEndDate(date)}
               minDate={startDate}
               className="w-full p-3 border border-gray-300 rounded-lg text-sm"
+              filterDate={(date) => !isDateBooked(date)}
             />
           </div>
         </div>
