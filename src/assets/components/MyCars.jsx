@@ -180,7 +180,7 @@ const MyCars = () => {
                 <td className="px-6 py-4">{car.model}</td>
                 <td className="px-6 py-4">${car.price}/day</td>
                 <td className="px-6 py-4 hidden md:table-cell">
-                  {car.availability ? "Yes" : "No"}
+                  {car.availability === "Available" ? "Yes" : "No"}
                 </td>
                 <td className="px-6 py-4 hidden md:table-cell">
                   {formatDate(car.createdAt)}

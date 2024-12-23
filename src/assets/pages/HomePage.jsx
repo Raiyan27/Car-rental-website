@@ -94,10 +94,14 @@ const HomePage = () => {
                     <p className="text-green-500">${car.price}/day</p>
                     <p
                       className={`text-sm ${
-                        car.availability ? "text-green-500" : "text-red-500"
+                        car.availability === "Available"
+                          ? "text-green-500"
+                          : "text-red-500"
                       }`}
                     >
-                      {car.availability ? "Available" : "Not Available"}
+                      {car.availability === "Available"
+                        ? "Available"
+                        : "Not Available"}
                     </p>
                     <p className="text-gray-500 text-xs mt-2">
                       Added {new Date(car.createdAt).toLocaleDateString()}

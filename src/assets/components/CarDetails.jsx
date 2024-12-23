@@ -5,6 +5,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import Swal from "sweetalert2";
 import BookingModal from "./BookingModal";
+import ShowReviewsModal from "./ShowReviewsModal";
 
 const CarDetails = () => {
   const { id } = useParams();
@@ -12,6 +13,7 @@ const CarDetails = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const swiperRef = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isReviewsModalOpen, setIsReviewsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchCar = async () => {
@@ -25,27 +27,6 @@ const CarDetails = () => {
     fetchCar();
   }, [id]);
 
-  // const handleBooking = () => {
-  //   Swal.fire({
-  //     title: "Confirm Booking",
-  //     text: `Do you want to confirm the booking for ${car.model} at $${car.price}/day?`,
-  //     icon: "question",
-  //     showCancelButton: true,
-  //     confirmButtonColor: "#10B981",
-  //     cancelButtonColor: "#d33",
-  //     confirmButtonText: "Yes, Book Now!",
-  //   }).then((result) => {
-  //     if (result.isConfirmed) {
-  //       Swal.fire({
-  //         title: "Booking Confirmed!",
-  //         text: `Your booking for ${car.model} has been confirmed.`,
-  //         icon: "success",
-  //         confirmButtonColor: "#10B981",
-  //       });
-  //     }
-  //   });
-  // };
-
   const handleImageClick = (index) => {
     setSelectedImageIndex(index);
     if (swiperRef.current) {
@@ -55,6 +36,14 @@ const CarDetails = () => {
 
   const handleBooking = () => {
     setIsModalOpen(true);
+  };
+
+  const handleShowReviews = () => {
+    setIsReviewsModalOpen(true);
+  };
+
+  const closeReviewsModal = () => {
+    setIsReviewsModalOpen(false);
   };
 
   if (!car)
@@ -126,7 +115,13 @@ const CarDetails = () => {
               <strong>Description:</strong> {car.description}
             </p>
             <p className="text-gray-600 mb-4">
-              <strong>Reviews:</strong>
+              <strong>Reviews:</strong>{" "}
+              <button
+                className="bg-bluePrimary px-2 rounded"
+                onClick={handleShowReviews}
+              >
+                See Reviews
+              </button>
             </p>
             <button
               onClick={handleBooking}
@@ -139,6 +134,9 @@ const CarDetails = () => {
       </div>
       {isModalOpen && (
         <BookingModal car={car} closeModal={() => setIsModalOpen(false)} />
+      )}
+      {isReviewsModalOpen && (
+        <ShowReviewsModal carId={car._id} closeModal={closeReviewsModal} />
       )}
     </div>
   );

@@ -1,18 +1,18 @@
 import React, { useContext, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { FaEdit, FaTrash, FaSort, FaStar } from "react-icons/fa";
+import { FaEdit, FaTrash, FaStar } from "react-icons/fa";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import axios from "axios";
 import EditBookingModal from "./EditBookingModal";
 import { AuthContext } from "../Auth/AuthContext";
+import ReviewModal from "./ReviewModal";
 
 const MyBookings = () => {
   const [bookings, setBookings] = useState([]);
-  const [sortOption, setSortOption] = useState("dateAdded");
   const [selectedBooking, setSelectedBooking] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [priceSortOrder, setPriceSortOrder] = useState("lowToHigh");
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [cars, setCars] = useState({});
   const { currentUser } = useContext(AuthContext);
   const email = currentUser?.email;
@@ -22,7 +22,6 @@ const MyBookings = () => {
     const day = String(d.getDate()).padStart(2, "0");
     const month = String(d.getMonth() + 1).padStart(2, "0");
     const year = d.getFullYear();
-
     return `${day}-${month}-${year}`;
   };
 
@@ -32,7 +31,6 @@ const MyBookings = () => {
         const response = await axios.get("http://localhost:5000/my-bookings", {
           params: { email },
         });
-
         setBookings(response.data);
         const carIds = response.data.map((booking) => booking.carId);
         fetchCarDetails(carIds);
@@ -42,7 +40,7 @@ const MyBookings = () => {
     };
 
     if (email) fetchBookings();
-  }, [bookings]);
+  }, [isEditModalOpen]);
 
   const fetchCarDetails = async (carIds) => {
     try {
@@ -56,7 +54,6 @@ const MyBookings = () => {
           carDetails[response.data._id] = response.data;
         }
       });
-
       setCars(carDetails);
     } catch (error) {
       console.error("Error fetching car details:", error);
@@ -65,11 +62,21 @@ const MyBookings = () => {
 
   const handleEdit = (booking) => {
     setSelectedBooking(booking);
-    setIsModalOpen(true);
+    setIsEditModalOpen(true);
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
+  const handleReview = (bookingId) => {
+    setSelectedBooking(bookingId);
+    setIsReviewModalOpen(true);
+  };
+
+  const closeEditModal = () => {
+    setIsEditModalOpen(false);
+    setSelectedBooking(null);
+  };
+
+  const closeReviewModal = () => {
+    setIsReviewModalOpen(false);
     setSelectedBooking(null);
   };
 
@@ -79,7 +86,7 @@ const MyBookings = () => {
       text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonText: "Yes, Cancel it!",
       cancelButtonText: "Cancel",
     }).then(async (result) => {
       if (result.isConfirmed) {
@@ -88,7 +95,6 @@ const MyBookings = () => {
             `http://localhost:5000/booking-confirmation/${id}`,
             { action: "cancel" }
           );
-
           if (response.status === 200) {
             setBookings(bookings.filter((booking) => booking.id !== id));
             Swal.fire(
@@ -118,10 +124,6 @@ const MyBookings = () => {
       </div>
     );
   }
-
-  const handleReview = (bookingId) => {
-    console.log("Review booking with ID:", bookingId);
-  };
 
   return (
     <div className="container mx-auto py-16 min-h-screen">
@@ -191,7 +193,7 @@ const MyBookings = () => {
                         onClick={() => handleDelete(booking._id)}
                         className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-400 flex items-center justify-center gap-1"
                       >
-                        <FaTrash /> Delete
+                        <FaTrash /> Cancel Booking
                       </button>
                     </>
                   )}
@@ -202,10 +204,17 @@ const MyBookings = () => {
         </table>
       </div>
 
-      {isModalOpen && selectedBooking && (
+      {isEditModalOpen && selectedBooking && (
         <EditBookingModal
           bookingData={selectedBooking}
-          closeModal={closeModal}
+          closeModal={closeEditModal}
+        />
+      )}
+
+      {isReviewModalOpen && selectedBooking && (
+        <ReviewModal
+          bookingId={selectedBooking}
+          closeModal={closeReviewModal}
         />
       )}
     </div>

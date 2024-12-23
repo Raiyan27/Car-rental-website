@@ -8,13 +8,16 @@ const AvailableCars = () => {
   const [search, setSearch] = useState("");
   const [view, setView] = useState("grid");
   const [sortOrder, setSortOrder] = useState("asc");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchCars = async () => {
       try {
         const response = await axios.get("http://localhost:5000/cars");
+        setLoading(false);
         setCars(response.data);
       } catch (error) {
+        setLoading(false);
         console.error("Error fetching cars:", error);
       }
     };
@@ -34,6 +37,15 @@ const AvailableCars = () => {
   const toggleSortOrder = () => {
     setSortOrder((prevOrder) => (prevOrder === "asc" ? "desc" : "asc"));
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center flex-col gap-2">
+        <p>LOADING..</p>
+        <div className="loading loading-spinner text-warning"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="py-16 bg-gray-100">
@@ -102,7 +114,7 @@ const AvailableCars = () => {
                 <p className="text-green-500">${car.price}/day</p>
                 <p className="text-gray-600 text-sm">{car.location}</p>
                 <p className="text-gray-500 text-xs mt-2">
-                  Available: {car.availability ? "Yes" : "No"}
+                  Available: {car.availability === "Available" ? "Yes" : "No"}
                 </p>
                 <Link
                   to={`/car/${car._id}`}
