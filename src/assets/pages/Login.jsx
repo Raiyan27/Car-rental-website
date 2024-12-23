@@ -10,6 +10,7 @@ import {
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
+import { Helmet } from "react-helmet";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -108,6 +109,10 @@ const Login = () => {
           </div>
         </div>
       </div>
+      <Helmet>
+        <meta charSet="utf-8" />
+        <title>Gari Chai - Login</title>
+      </Helmet>
     </div>
   );
 };

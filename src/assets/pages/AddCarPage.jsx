@@ -4,6 +4,7 @@ import { useDropzone } from "react-dropzone";
 import { AuthContext } from "../Auth/AuthContext";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { Helmet } from "react-helmet";
 
 const AddCarPage = () => {
   const [formData, setFormData] = useState({
@@ -113,6 +114,10 @@ const AddCarPage = () => {
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
   return (
     <div className="max-w-4xl mx-auto p-6 bg-yellowPrimary rounded-lg shadow-md my-8">
+      <Helmet>
+        <meta charSet="utf-8" />
+        <title>Gari Chai - Add Car</title>
+      </Helmet>
       <h2 className="text-2xl font-bold text-center text-bluePrimary">
         Add a New Car
       </h2>

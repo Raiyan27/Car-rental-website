@@ -7,6 +7,8 @@ import axios from "axios";
 import EditBookingModal from "./EditBookingModal";
 import { AuthContext } from "../Auth/AuthContext";
 import ReviewModal from "./ReviewModal";
+import DataVisualizationModal from "./DataVizualizationModal";
+import { Helmet } from "react-helmet";
 
 const MyBookings = () => {
   const [bookings, setBookings] = useState([]);
@@ -15,6 +17,7 @@ const MyBookings = () => {
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [cars, setCars] = useState({});
   const { currentUser } = useContext(AuthContext);
+  const [isDataVizModalOpen, setIsDataVizModalOpen] = useState(false);
   const email = currentUser?.email;
 
   const formatDate = (date) => {
@@ -30,6 +33,7 @@ const MyBookings = () => {
       try {
         const response = await axios.get("http://localhost:5000/my-bookings", {
           params: { email },
+          withCredentials: true,
         });
         setBookings(response.data);
         const carIds = response.data.map((booking) => booking.carId);
@@ -127,10 +131,28 @@ const MyBookings = () => {
     );
   }
 
+  const openDataVizModal = () => {
+    setIsDataVizModalOpen(true);
+  };
+
+  const closeDataVizModal = () => {
+    setIsDataVizModalOpen(false);
+  };
+
   return (
     <div className="container mx-auto py-16 min-h-screen">
+      <Helmet>
+        <meta charSet="utf-8" />
+        <title>Gari Chai - My Bookings</title>
+      </Helmet>
       <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">My Bookings</h1>
+        <button
+          className="px-4 py-2 bg-yellowSecondary text-gray-800 rounded-lg hover:bg-yellowPrimary transition"
+          onClick={openDataVizModal}
+        >
+          Vizualize Data
+        </button>
       </div>
 
       <div className="overflow-x-auto">
@@ -217,6 +239,13 @@ const MyBookings = () => {
         <ReviewModal
           bookingId={selectedBooking}
           closeModal={closeReviewModal}
+        />
+      )}
+      {isDataVizModalOpen && (
+        <DataVisualizationModal
+          closeModal={closeDataVizModal}
+          bookings={bookings}
+          cars={cars}
         />
       )}
     </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { FaSearch, FaTh, FaList } from "react-icons/fa";
+import { Helmet } from "react-helmet";
 
 const AvailableCars = () => {
   const [cars, setCars] = useState([]);
@@ -51,7 +52,7 @@ const AvailableCars = () => {
   }
 
   return (
-    <div className="py-16 bg-gray-100">
+    <div className="py-16 bg-gray-100 min-h-screen">
       <div className="container mx-auto">
         <h2 className="text-3xl font-bold mb-8 text-center">Available Cars</h2>
         <div className="flex flex-col space-y-1 md:flex-row items-center justify-between mb-8">
@@ -130,6 +131,10 @@ const AvailableCars = () => {
           ))}
         </div>
       </div>
+      <Helmet>
+        <meta charSet="utf-8" />
+        <title>Gari Chai - Available cars</title>
+      </Helmet>
     </div>
   );
 };

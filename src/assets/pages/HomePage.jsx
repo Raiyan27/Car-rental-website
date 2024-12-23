@@ -4,6 +4,7 @@ import { FaCar, FaDollarSign, FaRegClock, FaHeadset } from "react-icons/fa";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import axios from "axios";
+import { Helmet } from "react-helmet";
 
 const HomePage = () => {
   const [cars, setCars] = useState([]);
@@ -37,9 +38,13 @@ const HomePage = () => {
     };
     fetchReviews();
   }, []);
-  console.log(reviews);
+
   return (
     <div>
+      <Helmet>
+        <meta charSet="utf-8" />
+        <title>Gari Chai - Home</title>
+      </Helmet>
       <section
         className="relative h-screen bg-cover bg-center flex items-center justify-center text-gray-900"
         style={{
@@ -98,31 +103,33 @@ const HomePage = () => {
               cars.map((car) => (
                 <div
                   key={car._id}
-                  className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow"
+                  className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-2xl hover:translate-y-1 transition-shadow"
                 >
-                  <img
-                    src={car.images[0]}
-                    alt={car.model}
-                    className="w-full h-48 object-cover"
-                  />
-                  <div className="p-4">
-                    <h3 className="text-xl font-bold">{car.model}</h3>
-                    <p className="text-green-500">${car.price}/day</p>
-                    <p
-                      className={`text-sm ${
-                        car.availability === "Available"
-                          ? "text-green-500"
-                          : "text-red-500"
-                      }`}
-                    >
-                      {car.availability === "Available"
-                        ? "Available"
-                        : "Not Available"}
-                    </p>
-                    <p className="text-gray-500 text-xs mt-2">
-                      Added {new Date(car.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
+                  <Link to={`/car/${car._id}`} className="block">
+                    <img
+                      src={car.images[0]}
+                      alt={car.model}
+                      className="w-full h-48 object-cover"
+                    />
+                    <div className="p-4">
+                      <h3 className="text-xl font-bold">{car.model}</h3>
+                      <p className="text-green-500">${car.price}/day</p>
+                      <p
+                        className={`text-sm ${
+                          car.availability === "Available"
+                            ? "text-green-500"
+                            : "text-red-500"
+                        }`}
+                      >
+                        {car.availability === "Available"
+                          ? "Available"
+                          : "Not Available"}
+                      </p>
+                      <p className="text-gray-500 text-xs mt-2">
+                        Added {new Date(car.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </Link>
                 </div>
               ))
             ) : (
@@ -148,7 +155,8 @@ const HomePage = () => {
                   <p className="mt-4 text-lg font-semibold">
                     {review.reviewer}
                   </p>
-                  <p className="mt-2 text-yellow-500">
+                  <p className="mt-4 text-sm">Reviewed: {review.model}</p>
+                  <p className="mt-2 text-yellow-500 text-5xl">
                     {Array.from({ length: 5 }, (_, index) => {
                       return index < review.rating ? "★" : "☆";
                     })}
@@ -167,8 +175,8 @@ const HomePage = () => {
             Special Offers
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow">
-              <div className="p-6 text-center">
+            <div className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow transform group">
+              <div className="p-6 text-center transition-transform duration-300 group-hover:animate-jiggle">
                 <h3 className="text-xl font-bold text-green-500">
                   Get 15% Off for Weekend Rentals!
                 </h3>

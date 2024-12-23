@@ -12,6 +12,7 @@ import { signOut } from "firebase/auth";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
+import { Helmet } from "react-helmet";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -146,6 +147,10 @@ const Register = () => {
           </div>
         </div>
       </div>
+      <Helmet>
+        <meta charSet="utf-8" />
+        <title>Gari Chai - Register</title>
+      </Helmet>
     </div>
   );
 };

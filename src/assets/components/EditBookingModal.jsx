@@ -73,8 +73,6 @@ const EditBookingModal = ({ bookingData, closeModal }) => {
             }
           );
 
-          console.log("Update response:", response);
-
           Swal.fire({
             title: "Booking Edited!",
             text: `Your booking for ${

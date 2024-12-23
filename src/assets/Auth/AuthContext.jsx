@@ -13,19 +13,19 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
-      console.log("state captured", user?.email);
+
       if (user?.email) {
         const currentUser = { email: user.email };
         axios
           .post("http://localhost:5000/jwt", currentUser, {
             withCredentials: true,
           })
-          .then((res) => console.log("login", res.data))
+          .then((res) => console.log("login"))
           .catch((err) => console.error(err));
       } else {
         axios
           .post("http://localhost:5000/logout", {}, { withCredentials: true })
-          .then((res) => console.log("logout", res.data));
+          .then((res) => console.log("logout"));
       }
       setLoading(false);
     });

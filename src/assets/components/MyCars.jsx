@@ -7,6 +7,7 @@ import axios from "axios";
 import EditModal from "./EditModal";
 import { AuthContext } from "../Auth/AuthContext";
 import BookingInfoModal from "./BookingInfoModal";
+import { Helmet } from "react-helmet";
 
 const MyCars = () => {
   const [cars, setCars] = useState([]);
@@ -122,7 +123,7 @@ const MyCars = () => {
 
   if (cars.length === 0) {
     return (
-      <div className="text-center py-16">
+      <div className="text-center py-16 min-h-screen">
         <h2 className="text-3xl font-bold mb-4">No Cars Added Yet</h2>
         <Link
           to="/add-car"
@@ -234,6 +235,10 @@ const MyCars = () => {
         cars={cars}
         onClose={() => setIsBookingModalOpen(false)}
       />
+      <Helmet>
+        <meta charSet="utf-8" />
+        <title>Gari Chai - My Cars</title>
+      </Helmet>
     </div>
   );
 };
