@@ -1,11 +1,12 @@
 import React, { useContext, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { FaEdit, FaTrash, FaSort } from "react-icons/fa";
+import { FaEdit, FaTrash, FaSort, FaInfoCircle } from "react-icons/fa";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import axios from "axios";
 import EditModal from "./EditModal";
 import { AuthContext } from "../Auth/AuthContext";
+import BookingInfoModal from "./BookingInfoModal";
 
 const MyCars = () => {
   const [cars, setCars] = useState([]);
@@ -13,6 +14,9 @@ const MyCars = () => {
   const [selectedCar, setSelectedCar] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [priceSortOrder, setPriceSortOrder] = useState("lowToHigh");
+  const [bookingInfo, setBookingInfo] = useState([]);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
   const { currentUser } = useContext(AuthContext);
   const email = currentUser?.email;
 
@@ -32,8 +36,8 @@ const MyCars = () => {
       try {
         const response = await axios.get("http://localhost:5000/car", {
           params: { email },
+          withCredentials: true,
         });
-
         setCars(response.data);
       } catch (error) {
         console.error("Error fetching cars:", error);
@@ -41,7 +45,7 @@ const MyCars = () => {
     };
 
     if (email) fetchCars();
-  }, [cars, email]);
+  }, [email, isModalOpen]);
 
   const handleSort = (option) => {
     const sortedCars = [...cars].sort((a, b) => {
@@ -75,7 +79,6 @@ const MyCars = () => {
   };
 
   const handleDelete = async (id) => {
-    console.log(id);
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -87,7 +90,7 @@ const MyCars = () => {
       if (result.isConfirmed) {
         try {
           await axios.delete(`http://localhost:5000/delete-car/${id}`);
-          setCars(cars.filter((car) => car.id !== id));
+          setCars((prevCars) => prevCars.filter((car) => car._id !== id));
           Swal.fire("Deleted!", "The car has been deleted.", "success");
         } catch (error) {
           console.error("Error deleting car:", error);
@@ -97,8 +100,21 @@ const MyCars = () => {
     });
   };
 
-  const handleModalClose = () => {
+  const handleModalClose = (updatedCar) => {
     setIsModalOpen(false);
+  };
+
+  const handleBookingInfo = async (carId) => {
+    try {
+      const response = await axios.get("http://localhost:5000/owner-bookings", {
+        params: { carId },
+        withCredentials: true,
+      });
+      setBookingInfo(response.data);
+      setIsBookingModalOpen(true);
+    } catch (error) {
+      console.error("Error fetching booking info:", error);
+    }
   };
 
   if (cars.length === 0) {
@@ -182,6 +198,12 @@ const MyCars = () => {
                   >
                     <FaTrash /> Delete
                   </button>
+                  <button
+                    onClick={() => handleBookingInfo(car._id)}
+                    className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-400 flex items-center justify-center gap-1"
+                  >
+                    <FaInfoCircle /> Booking Info
+                  </button>
                 </td>
               </tr>
             ))}
@@ -193,6 +215,13 @@ const MyCars = () => {
         carData={selectedCar}
         isOpen={isModalOpen}
         onClose={handleModalClose}
+      />
+
+      <BookingInfoModal
+        isOpen={isBookingModalOpen}
+        bookings={bookingInfo}
+        cars={cars}
+        onClose={() => setIsBookingModalOpen(false)}
       />
     </div>
   );

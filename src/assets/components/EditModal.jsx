@@ -93,6 +93,7 @@ const EditModal = ({ carData, isOpen, onClose }) => {
       const response = await axios.patch(
         `http://localhost:5000/update-car/${carData._id}`,
         payload,
+        { withCredentials: true },
         {
           headers: {
             "Content-Type": "application/json",
@@ -102,7 +103,8 @@ const EditModal = ({ carData, isOpen, onClose }) => {
 
       if (response.status === 200) {
         toast.success("Car updated successfully!");
-        onClose();
+
+        onClose(response.data);
       }
     } catch (error) {
       console.error("Error updating the car:", error);

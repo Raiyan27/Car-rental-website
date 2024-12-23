@@ -85,6 +85,7 @@ const AddCarPage = () => {
       const response = await axios.post(
         "http://localhost:5000/add-car",
         payload,
+        { withCredentials: true },
         {
           headers: {
             "Content-Type": "application/json",
