@@ -25,7 +25,7 @@ const CarDetails = () => {
       }
     };
     fetchCar();
-  }, [id]);
+  }, [isModalOpen]);
 
   const handleImageClick = (index) => {
     setSelectedImageIndex(index);
@@ -113,6 +113,12 @@ const CarDetails = () => {
             </p>
             <p className="text-gray-600 mb-4">
               <strong>Description:</strong> {car.description}
+            </p>
+            <p className="text-gray-600 mb-4">
+              <strong>Life-time booking count:</strong> {car.bookingCount}
+            </p>
+            <p className="text-gray-600 mb-4">
+              <strong>Owner:</strong> {car.user.name}
             </p>
             <p className="text-gray-600 mb-4">
               <strong>Reviews:</strong>{" "}

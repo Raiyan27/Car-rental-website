@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { format } from "date-fns"; // Import date-fns for date formatting
+import { format } from "date-fns";
 
 const ShowReviewsModal = ({ carId, closeModal }) => {
   const [reviews, setReviews] = useState([]);

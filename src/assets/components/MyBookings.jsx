@@ -96,7 +96,9 @@ const MyBookings = () => {
             { action: "cancel" }
           );
           if (response.status === 200) {
-            setBookings(bookings.filter((booking) => booking.id !== id));
+            setBookings((prevBookings) =>
+              prevBookings.filter((booking) => booking._id !== id)
+            );
             Swal.fire(
               "Cancelled!",
               "The booking has been cancelled.",

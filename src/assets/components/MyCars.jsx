@@ -17,6 +17,7 @@ const MyCars = () => {
   const [bookingInfo, setBookingInfo] = useState([]);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
+  const [loading, setLoading] = useState(true);
   const { currentUser } = useContext(AuthContext);
   const email = currentUser?.email;
 
@@ -38,8 +39,10 @@ const MyCars = () => {
           params: { email },
           withCredentials: true,
         });
+        setLoading(false);
         setCars(response.data);
       } catch (error) {
+        setLoading(false);
         console.error("Error fetching cars:", error);
       }
     };
@@ -127,6 +130,14 @@ const MyCars = () => {
         >
           Add Your First Car
         </Link>
+      </div>
+    );
+  }
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center flex-col gap-2">
+        <p>LOADING..</p>
+        <div className="loading loading-spinner text-warning"></div>
       </div>
     );
   }

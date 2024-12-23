@@ -7,6 +7,8 @@ import axios from "axios";
 
 const HomePage = () => {
   const [cars, setCars] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState([]);
 
   useEffect(() => {
     axios
@@ -22,6 +24,20 @@ const HomePage = () => {
       });
   }, []);
 
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/reviews`);
+        setReviews(response.data.slice(0, 8));
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
+        setLoading(false);
+      }
+    };
+    fetchReviews();
+  }, []);
+  console.log(reviews);
   return (
     <div>
       <section
@@ -123,27 +139,24 @@ const HomePage = () => {
           </h2>
           <Swiper
             spaceBetween={30}
-            slidesPerView={1}
-            autoplay={{ delay: 5000 }}
+            slidesPerView={2}
+            autoplay={{ delay: 2000 }}
           >
-            {Array(3)
-              .fill()
-              .map((_, index) => (
-                <SwiperSlide key={index}>
-                  <div className="text-center">
-                    <img
-                      src={`/user-${index + 1}.jpg`}
-                      alt="User"
-                      className="w-16 h-16 rounded-full mx-auto"
-                    />
-                    <p className="mt-4 text-lg font-semibold">John Doe</p>
-                    <p className="text-yellowPrimary-500 mt-2">★★★★★</p>
-                    <p className="text-gray-600 mt-4">
-                      "Amazing service and great cars. Highly recommend!"
-                    </p>
-                  </div>
-                </SwiperSlide>
-              ))}
+            {reviews.map((review, index) => (
+              <SwiperSlide key={index}>
+                <div className="text-center">
+                  <p className="mt-4 text-lg font-semibold">
+                    {review.reviewer}
+                  </p>
+                  <p className="mt-2 text-yellow-500">
+                    {Array.from({ length: 5 }, (_, index) => {
+                      return index < review.rating ? "★" : "☆";
+                    })}
+                  </p>
+                  <p className="text-gray-600 mt-4">{review.comment}</p>
+                </div>
+              </SwiperSlide>
+            ))}
           </Swiper>
         </div>
       </section>

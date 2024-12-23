@@ -15,7 +15,10 @@ const AvailableCars = () => {
       try {
         const response = await axios.get("http://localhost:5000/cars");
         setLoading(false);
-        setCars(response.data);
+        const availableCars = response.data.filter(
+          (car) => car.availability === "Available"
+        );
+        setCars(availableCars);
       } catch (error) {
         setLoading(false);
         console.error("Error fetching cars:", error);
@@ -51,7 +54,7 @@ const AvailableCars = () => {
     <div className="py-16 bg-gray-100">
       <div className="container mx-auto">
         <h2 className="text-3xl font-bold mb-8 text-center">Available Cars</h2>
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col space-y-1 md:flex-row items-center justify-between mb-8">
           <div className="relative">
             <FaSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400" />
             <input
