@@ -4,6 +4,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { AuthContext } from "../Auth/AuthContext";
+import PropTypes from "prop-types";
 
 const EditBookingModal = ({ bookingData, closeModal }) => {
   const [startDate, setStartDate] = useState(new Date(bookingData.startDate));
@@ -192,6 +193,11 @@ const EditBookingModal = ({ bookingData, closeModal }) => {
       </div>
     </div>
   );
+};
+
+EditBookingModal.propTypes = {
+  bookingData: PropTypes.isRequired,
+  closeModal: PropTypes.isRequired,
 };
 
 export default EditBookingModal;

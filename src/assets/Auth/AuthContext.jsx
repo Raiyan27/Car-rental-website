@@ -20,12 +20,13 @@ export const AuthProvider = ({ children }) => {
           .post("http://localhost:5000/jwt", currentUser, {
             withCredentials: true,
           })
-          .then((res) => console.log("login"))
           .catch((err) => console.error(err));
       } else {
-        axios
-          .post("http://localhost:5000/logout", {}, { withCredentials: true })
-          .then((res) => console.log("logout"));
+        axios.post(
+          "http://localhost:5000/logout",
+          {},
+          { withCredentials: true }
+        );
       }
       setLoading(false);
     });

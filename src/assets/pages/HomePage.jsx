@@ -162,7 +162,6 @@ const HomePage = () => {
             }}
             navigation={true}
             modules={[Autoplay, Pagination, Navigation]}
-            loop={true}
           >
             {reviews.map((review, index) => (
               <SwiperSlide key={index}>

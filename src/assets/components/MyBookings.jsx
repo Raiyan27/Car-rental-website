@@ -18,6 +18,7 @@ const MyBookings = () => {
   const [cars, setCars] = useState({});
   const { currentUser } = useContext(AuthContext);
   const [isDataVizModalOpen, setIsDataVizModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
   const email = currentUser?.email;
 
   const formatDate = (date) => {
@@ -36,9 +37,11 @@ const MyBookings = () => {
           withCredentials: true,
         });
         setBookings(response.data);
+        setLoading(false);
         const carIds = response.data.map((booking) => booking.carId);
         fetchCarDetails(carIds);
       } catch (error) {
+        setLoading(false);
         console.error("Error fetching bookings:", error);
       }
     };
@@ -141,7 +144,7 @@ const MyBookings = () => {
     });
   };
 
-  if (bookings.length === 0) {
+  if (bookings.length === 0 && !loading) {
     return (
       <div className="text-center py-16 min-h-screen">
         <h2 className="text-3xl font-bold mb-4">No Bookings Yet</h2>
@@ -162,6 +165,15 @@ const MyBookings = () => {
   const closeDataVizModal = () => {
     setIsDataVizModalOpen(false);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center flex-col gap-2">
+        <p>LOADING</p>
+        <div className="loading loading-spinner text-warning"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-16 min-h-screen">

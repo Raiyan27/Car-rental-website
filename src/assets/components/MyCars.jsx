@@ -137,7 +137,7 @@ const MyCars = () => {
     }
   };
 
-  if (cars.length === 0 && !searchQuery && loading) {
+  if (cars.length === 0 && !searchQuery && !loading) {
     return (
       <div className="text-center py-16 min-h-screen">
         <h2 className="text-3xl font-bold mb-4">No Cars Added Yet</h2>
