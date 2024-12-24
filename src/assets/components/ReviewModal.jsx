@@ -51,12 +51,12 @@ const ReviewModal = ({ bookingId, closeModal }) => {
     try {
       const response = await axios.post("http://localhost:5000/add-review", {
         carId: bookingId.carId,
-        model: carInfo.model,
-        owner: carInfo.user.name,
+        model: carInfo.model || "Model",
+        owner: carInfo.user.name || "Owner",
         rating,
         comment: reviewText,
-        reviewer: reviewerName,
-        reviewerPhoto: photo,
+        reviewer: reviewerName || "Reviewer",
+        reviewerPhoto: photo || "https://placehold.co/400",
       });
 
       if (response.data?.message === "Review added successfully") {

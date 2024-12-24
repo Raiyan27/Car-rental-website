@@ -103,32 +103,44 @@ const AvailableCars = () => {
               : "grid-cols-1 gap-4"
           }`}
         >
-          {filteredCars.map((car) => (
-            <div
-              key={car._id}
-              className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow mx-2 md:mx-0"
-            >
-              <img
-                src={car.images[0]}
-                alt={car.model}
-                className="w-full h-96 object-cover"
-              />
-              <div className="p-4">
-                <h3 className="text-xl font-bold text-gray-800">{car.model}</h3>
-                <p className="text-green-500">${car.price}/day</p>
-                <p className="text-gray-600 text-sm">{car.location}</p>
-                <p className="text-gray-500 text-xs mt-2">
-                  Available: {car.availability === "Available" ? "Yes" : "No"}
-                </p>
-                <Link
-                  to={`/car/${car._id}`}
-                  className="block text-gray-800 mt-4 px-4 py-2 text-center bg-yellowSecondary text-gray-800 rounded-lg hover:bg-yellowPrimary transition"
-                >
-                  View Details
-                </Link>
+          {filteredCars.length > 0 ? (
+            filteredCars.map((car) => (
+              <div
+                key={car._id}
+                className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow mx-2 md:mx-0"
+              >
+                <img
+                  src={car.images[0]}
+                  alt={car.model}
+                  className="w-full h-96 object-cover"
+                />
+                <div className="p-4">
+                  <h3 className="text-xl font-bold text-gray-800">
+                    {car.model}
+                  </h3>
+                  <p className="text-green-500">${car.price}/day</p>
+                  <p className="text-gray-600 text-sm">{car.location}</p>
+                  <p className="text-gray-500 text-xs mt-2">
+                    Available: {car.availability === "Available" ? "Yes" : "No"}
+                  </p>
+                  <Link
+                    to={`/car/${car._id}`}
+                    className="block text-gray-800 mt-4 px-4 py-2 text-center bg-yellowSecondary text-gray-800 rounded-lg hover:bg-yellowPrimary transition"
+                  >
+                    View Details
+                  </Link>
+                </div>
               </div>
+            ))
+          ) : (
+            <div className="text-center py-16 col-span-3">
+              <p className="text-2xl font-semibold text-gray-500 ">
+                No cars match your search for"
+                <span className="font-bold">{search}</span>.
+              </p>
+              <p className="text-gray-400">Try adjusting your search terms.</p>
             </div>
-          ))}
+          )}
         </div>
       </div>
       <Helmet>

@@ -1,6 +1,12 @@
 import React, { useContext, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { FaEdit, FaTrash, FaSort, FaInfoCircle } from "react-icons/fa";
+import {
+  FaEdit,
+  FaTrash,
+  FaSort,
+  FaInfoCircle,
+  FaSearch,
+} from "react-icons/fa";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import axios from "axios";
@@ -21,6 +27,9 @@ const MyCars = () => {
   const [loading, setLoading] = useState(true);
   const { currentUser } = useContext(AuthContext);
   const [dateSortOrder, setDateSortOrder] = useState("newestToOldest");
+  const [totalPages, setTotalPages] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const email = currentUser?.email;
 
@@ -39,19 +48,19 @@ const MyCars = () => {
     const fetchCars = async () => {
       try {
         const response = await axios.get("http://localhost:5000/car", {
-          params: { email },
+          params: { email, page: currentPage, limit: 5, searchQuery },
           withCredentials: true,
         });
         setLoading(false);
-        setCars(response.data);
+        setCars(response.data.cars);
+        setTotalPages(response.data.totalPages);
       } catch (error) {
         setLoading(false);
         console.error("Error fetching cars:", error);
       }
     };
-
     if (email) fetchCars();
-  }, [email, isModalOpen]);
+  }, [email, isModalOpen, currentPage, searchQuery]);
 
   const handleSort = (option) => {
     const sortedCars = [...cars].sort((a, b) => {
@@ -128,7 +137,7 @@ const MyCars = () => {
     }
   };
 
-  if (cars.length === 0) {
+  if (cars.length === 0 && !searchQuery && loading) {
     return (
       <div className="text-center py-16 min-h-screen">
         <h2 className="text-3xl font-bold mb-4">No Cars Added Yet</h2>
@@ -141,6 +150,10 @@ const MyCars = () => {
       </div>
     );
   }
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center flex-col gap-2">
@@ -152,8 +165,21 @@ const MyCars = () => {
 
   return (
     <div className="container mx-auto py-16 min-h-screen">
-      <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-8">
+      <div className="flex justify-center mb-4">
         <h1 className="text-3xl font-bold">My Cars</h1>
+      </div>
+      <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-8">
+        <div className="relative">
+          <FaSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search by car model..."
+            className="pl-10 pr-4 py-2 border rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-yellowSecondary"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+
         <div className="flex flex-col sm:flex-row gap-2 space-x-4 items-center justify-center">
           <span>Sort By:</span>
           <button
@@ -232,6 +258,57 @@ const MyCars = () => {
             ))}
           </tbody>
         </table>
+        {cars.length === 0 && searchQuery && (
+          <div className="text-center py-16">
+            <p className="text-2xl font-semibold text-gray-500">
+              No cars match your search for "
+              <span className="font-bold">{searchQuery}</span>".
+            </p>
+            <p className="text-gray-400">Try adjusting your search terms.</p>
+          </div>
+        )}
+      </div>
+
+      <div className="flex items-center justify-center space-x-2 mt-4">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className={`px-4 py-2 rounded-lg ${
+            currentPage === 1
+              ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+              : "bg-bluePrimary text-white hover:bg-blue-500"
+          }`}
+        >
+          Previous
+        </button>
+        {[...Array(totalPages).keys()].map((_, index) => {
+          const pageNumber = index + 1;
+          return (
+            <button
+              key={pageNumber}
+              onClick={() => handlePageChange(pageNumber)}
+              className={`px-3 py-2 rounded-lg ${
+                currentPage === pageNumber
+                  ? "bg-yellowSecondary text-gray-800 font-semibold"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              {pageNumber}
+            </button>
+          );
+        })}
+
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className={`px-4 py-2 rounded-lg ${
+            currentPage === totalPages
+              ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+              : "bg-bluePrimary text-white hover:bg-blue-500"
+          }`}
+        >
+          Next
+        </button>
       </div>
 
       <EditModal
