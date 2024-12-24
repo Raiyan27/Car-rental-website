@@ -47,10 +47,13 @@ const MyCars = () => {
   useEffect(() => {
     const fetchCars = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/car", {
-          params: { email, page: currentPage, limit: 5, searchQuery },
-          withCredentials: true,
-        });
+        const response = await axios.get(
+          "https://gari-chai-server.vercel.app/car",
+          {
+            params: { email, page: currentPage, limit: 5, searchQuery },
+            withCredentials: true,
+          }
+        );
         setLoading(false);
         setCars(response.data.cars);
         setTotalPages(response.data.totalPages);
@@ -109,7 +112,9 @@ const MyCars = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.delete(`http://localhost:5000/delete-car/${id}`);
+          await axios.delete(
+            `https://gari-chai-server.vercel.app/delete-car/${id}`
+          );
           setCars((prevCars) => prevCars.filter((car) => car._id !== id));
           Swal.fire("Deleted!", "The car has been deleted.", "success");
         } catch (error) {
@@ -126,10 +131,13 @@ const MyCars = () => {
 
   const handleBookingInfo = async (carId) => {
     try {
-      const response = await axios.get("http://localhost:5000/owner-bookings", {
-        params: { carId },
-        withCredentials: true,
-      });
+      const response = await axios.get(
+        "https://gari-chai-server.vercel.app/owner-bookings",
+        {
+          params: { carId },
+          withCredentials: true,
+        }
+      );
       setBookingInfo(response.data);
       setIsBookingModalOpen(true);
     } catch (error) {

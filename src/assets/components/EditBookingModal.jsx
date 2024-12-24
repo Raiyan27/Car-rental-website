@@ -17,7 +17,7 @@ const EditBookingModal = ({ bookingData, closeModal }) => {
     const fetchCarDetails = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/car/${bookingData.carId}`
+          `https://gari-chai-server.vercel.app/car/${bookingData.carId}`
         );
         setCar(response.data);
       } catch (error) {
@@ -66,7 +66,7 @@ const EditBookingModal = ({ bookingData, closeModal }) => {
       if (result.isConfirmed) {
         try {
           const response = await axios.patch(
-            `http://localhost:5000/update-booking/${bookingData._id}`,
+            `https://gari-chai-server.vercel.app/update-booking/${bookingData._id}`,
             {
               startDate: startDate.toISOString(),
               endDate: endDate.toISOString(),

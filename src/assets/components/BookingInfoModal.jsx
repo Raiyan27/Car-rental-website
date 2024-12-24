@@ -19,7 +19,7 @@ const BookingInfoModal = ({ isOpen, bookings, cars, onClose }) => {
   const handleAction = async (bookingId, action) => {
     try {
       const response = await axios.patch(
-        `http://localhost:5000/booking-confirmation/${bookingId}`,
+        `https://gari-chai-server.vercel.app/booking-confirmation/${bookingId}`,
         { action }
       );
 

@@ -91,7 +91,7 @@ const EditModal = ({ carData, isOpen, onClose }) => {
 
     try {
       const response = await axios.patch(
-        `http://localhost:5000/update-car/${carData._id}`,
+        `https://gari-chai-server.vercel.app/update-car/${carData._id}`,
         payload,
         { withCredentials: true },
         {

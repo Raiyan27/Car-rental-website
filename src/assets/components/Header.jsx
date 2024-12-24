@@ -14,14 +14,12 @@ const Header = () => {
   const toggleMenu = () => setIsOpen(!isOpen);
 
   const handleLogout = async () => {
-    console.log("clicked");
     try {
       await signOut(auth);
       toast.success("You have logged out successfully!");
       navigate("/");
     } catch (error) {
-      console.error("Logout failed:", error);
-      toast.error("Logout failed. Please try again.");
+      toast.error("Logout failed. Please try again.", error);
     }
   };
 

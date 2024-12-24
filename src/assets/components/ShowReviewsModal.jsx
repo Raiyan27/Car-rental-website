@@ -11,7 +11,7 @@ const ShowReviewsModal = ({ carId, closeModal }) => {
     const fetchReviews = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/reviews/${carId}`
+          `https://gari-chai-server.vercel.app/reviews/${carId}`
         );
         setReviews(response.data);
         setLoading(false);

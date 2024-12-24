@@ -14,7 +14,9 @@ const AvailableCars = () => {
   useEffect(() => {
     const fetchCars = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/cars");
+        const response = await axios.get(
+          "https://gari-chai-server.vercel.app/cars"
+        );
         setLoading(false);
         const availableCars = response.data.filter(
           (car) => car.availability === "Available"
@@ -135,8 +137,8 @@ const AvailableCars = () => {
           ) : (
             <div className="text-center py-16 col-span-3">
               <p className="text-2xl font-semibold text-gray-500 ">
-                No cars match your search for"
-                <span className="font-bold">{search}</span>.
+                No cars match your search for "
+                <span className="font-bold">{search}</span>".
               </p>
               <p className="text-gray-400">Try adjusting your search terms.</p>
             </div>

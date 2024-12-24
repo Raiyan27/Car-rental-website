@@ -16,7 +16,9 @@ const ReviewModal = ({ bookingId, closeModal }) => {
     const fetchCarDetails = async () => {
       try {
         const carId = bookingId.carId;
-        const response = await axios.get(`http://localhost:5000/car/${carId}`);
+        const response = await axios.get(
+          `https://gari-chai-server.vercel.app/car/${carId}`
+        );
 
         if (response.data) {
           setCarInfo(response.data);
@@ -49,15 +51,18 @@ const ReviewModal = ({ bookingId, closeModal }) => {
     }
 
     try {
-      const response = await axios.post("http://localhost:5000/add-review", {
-        carId: bookingId.carId,
-        model: carInfo.model || "Model",
-        owner: carInfo.user.name || "Owner",
-        rating,
-        comment: reviewText,
-        reviewer: reviewerName || "Reviewer",
-        reviewerPhoto: photo || "https://placehold.co/400",
-      });
+      const response = await axios.post(
+        "https://gari-chai-server.vercel.app/add-review",
+        {
+          carId: bookingId.carId,
+          model: carInfo.model || "Model",
+          owner: carInfo.user.name || "Owner",
+          rating,
+          comment: reviewText,
+          reviewer: reviewerName || "Reviewer",
+          reviewerPhoto: photo || "https://placehold.co/400",
+        }
+      );
 
       if (response.data?.message === "Review added successfully") {
         Swal.fire("Success", "Your review has been submitted!", "success");

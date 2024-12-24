@@ -17,13 +17,13 @@ export const AuthProvider = ({ children }) => {
       if (user?.email) {
         const currentUser = { email: user.email };
         axios
-          .post("http://localhost:5000/jwt", currentUser, {
+          .post("https://gari-chai-server.vercel.app/jwt", currentUser, {
             withCredentials: true,
           })
           .catch((err) => console.error(err));
       } else {
         axios.post(
-          "http://localhost:5000/logout",
+          "https://gari-chai-server.vercel.app/logout",
           {},
           { withCredentials: true }
         );

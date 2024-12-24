@@ -15,7 +15,7 @@ const HomePage = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/cars")
+      .get("https://gari-chai-server.vercel.app/cars")
       .then((response) => {
         const sortedCars = response.data
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
@@ -30,7 +30,9 @@ const HomePage = () => {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/reviews`);
+        const response = await axios.get(
+          `https://gari-chai-server.vercel.app/reviews`
+        );
         setReviews(response.data.slice(0, 8));
         setLoading(false);
       } catch (error) {

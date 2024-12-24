@@ -84,7 +84,7 @@ const AddCarPage = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/add-car",
+        "https://gari-chai-server.vercel.app/add-car",
         payload,
         { withCredentials: true },
         {

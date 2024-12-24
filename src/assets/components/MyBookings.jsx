@@ -32,10 +32,13 @@ const MyBookings = () => {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/my-bookings", {
-          params: { email },
-          withCredentials: true,
-        });
+        const response = await axios.get(
+          "https://gari-chai-server.vercel.app/my-bookings",
+          {
+            params: { email },
+            withCredentials: true,
+          }
+        );
         setBookings(response.data);
         setLoading(false);
         const carIds = response.data.map((booking) => booking.carId);
@@ -52,7 +55,7 @@ const MyBookings = () => {
   const fetchCarDetails = async (carIds) => {
     try {
       const carDataPromises = carIds.map((carId) =>
-        axios.get(`http://localhost:5000/car/${carId}`)
+        axios.get(`https://gari-chai-server.vercel.app/car/${carId}`)
       );
       const carDataResponses = await Promise.all(carDataPromises);
       const carDetails = {};
@@ -99,7 +102,7 @@ const MyBookings = () => {
       if (result.isConfirmed) {
         try {
           const response = await axios.patch(
-            `http://localhost:5000/booking-confirmation/${id}`,
+            `https://gari-chai-server.vercel.app/booking-confirmation/${id}`,
             { action: "cancel" }
           );
           if (response.status === 200) {
@@ -128,7 +131,7 @@ const MyBookings = () => {
       if (result.isConfirmed) {
         try {
           const response = await axios.delete(
-            `http://localhost:5000/booking-delete/${id}`
+            `https://gari-chai-server.vercel.app/booking-delete/${id}`
           );
           if (response.status === 200) {
             setBookings((prevBookings) =>
