@@ -106,7 +106,7 @@ const AvailableCars = () => {
           {filteredCars.map((car) => (
             <div
               key={car._id}
-              className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow"
+              className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow mx-2 md:mx-0"
             >
               <img
                 src={car.images[0]}

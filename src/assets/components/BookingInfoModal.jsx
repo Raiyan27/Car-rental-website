@@ -62,6 +62,9 @@ const BookingInfoModal = ({ isOpen, bookings, cars, onClose }) => {
               return (
                 <li key={booking._id} className="py-4">
                   <p className="text-gray-700">
+                    <strong>Client Email:</strong> {booking.clientEmail}
+                  </p>
+                  <p className="text-gray-700">
                     <strong>Start Date:</strong> {formatDate(booking.startDate)}
                   </p>
                   <p className="text-gray-700">
@@ -71,9 +74,9 @@ const BookingInfoModal = ({ isOpen, bookings, cars, onClose }) => {
                     <strong>Status:</strong>{" "}
                     <span
                       className={
-                        booking.status === "confirmed"
+                        booking.status === "Confirmed"
                           ? "text-green-500 font-semibold"
-                          : booking.status === "canceled"
+                          : booking.status === "Canceled"
                           ? "text-red-500 font-semibold"
                           : "text-yellow-500 font-semibold"
                       }

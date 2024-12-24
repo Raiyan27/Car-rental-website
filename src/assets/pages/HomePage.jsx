@@ -6,6 +6,7 @@ import "swiper/css";
 import axios from "axios";
 import "animate.css";
 import { Helmet } from "react-helmet";
+import { Autoplay, Pagination, Navigation } from "swiper/modules";
 
 const HomePage = () => {
   const [cars, setCars] = useState([]);
@@ -55,7 +56,8 @@ const HomePage = () => {
       >
         <div className="bg-black bg-opacity-70 p-10 text-center rounded-md shadow-lg">
           <h1 className="text-4xl md:text-6xl font-bold mb-6 text-white drop-shadow-md">
-            Drive Your Dreams Today!
+            Drive Your Dreams Today! <br />
+            <span className="text-2xl text-stone-500">Take it for a spin</span>
           </h1>
           <Link
             to="/available-cars"
@@ -104,7 +106,7 @@ const HomePage = () => {
               cars.map((car) => (
                 <div
                   key={car._id}
-                  className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-2xl hover:translate-y-1 transition-shadow"
+                  className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-2xl hover:translate-y-1 transition-shadow  mx-2 md:mx-0"
                 >
                   <Link to={`/car/${car._id}`} className="block">
                     <img
@@ -150,21 +152,33 @@ const HomePage = () => {
           </h2>
           <Swiper
             spaceBetween={30}
-            slidesPerView={2}
+            slidesPerView={1}
             autoplay={{
-              delay: 2000,
+              delay: 3000,
               disableOnInteraction: false,
             }}
+            pagination={{
+              clickable: true,
+            }}
+            navigation={true}
+            modules={[Autoplay, Pagination, Navigation]}
             loop={true}
           >
             {reviews.map((review, index) => (
               <SwiperSlide key={index}>
-                <div className="text-center">
+                <div className="text-center flex flex-col items-center justify-center">
+                  <div className="w-32 flex flex-col items-center justify-center">
+                    <img
+                      className="w-24 h-24 rounded-full border border-yellowSecondary"
+                      src={review.reviewerPhoto || "https://placehold.co/400"}
+                      alt={review.reviewer}
+                    />
+                  </div>
                   <p className="mt-4 text-lg font-semibold">
                     {review.reviewer}
                   </p>
                   <p className="mt-4 text-sm">Reviewed: {review.model}</p>
-                  <p className="mt-2 text-yellow-500 text-5xl">
+                  <p className="mt-2 text-yellow-500 text-5xl animate__animated animate__heartBeat">
                     {Array.from({ length: 5 }, (_, index) => {
                       return index < review.rating ? "★" : "☆";
                     })}
@@ -182,7 +196,7 @@ const HomePage = () => {
           <h2 className="text-3xl font-bold mb-8 text-center">
             Special Offers
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8  mx-2 md:mx-0">
             <div className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transform group bounce-on-hover">
               <div className="p-6 text-center">
                 <h3 className="text-xl font-bold text-green-500 ">

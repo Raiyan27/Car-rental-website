@@ -20,6 +20,8 @@ const MyCars = () => {
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [loading, setLoading] = useState(true);
   const { currentUser } = useContext(AuthContext);
+  const [dateSortOrder, setDateSortOrder] = useState("newestToOldest");
+
   const email = currentUser?.email;
 
   const formatDate = (date) => {
@@ -59,10 +61,9 @@ const MyCars = () => {
           : b.price - a.price;
       }
       if (option === "dateAdded") {
-        return new Date(b.createdAt) - new Date(a.createdAt);
-      }
-      if (option === "dateAddedOld") {
-        return new Date(a.createdAt) - new Date(b.createdAt);
+        return dateSortOrder === "newestToOldest"
+          ? new Date(b.createdAt) - new Date(a.createdAt)
+          : new Date(a.createdAt) - new Date(b.createdAt);
       }
       return 0;
     });
@@ -75,6 +76,12 @@ const MyCars = () => {
       priceSortOrder === "lowToHigh" ? "highToLow" : "lowToHigh";
     setPriceSortOrder(newSortOrder);
     handleSort(newSortOrder === "lowToHigh" ? "priceLow" : "priceHigh");
+  };
+  const toggleDateSort = () => {
+    const newSortOrder =
+      dateSortOrder === "newestToOldest" ? "oldestToNewest" : "newestToOldest";
+    setDateSortOrder(newSortOrder);
+    handleSort("dateAdded");
   };
 
   const handleEdit = (car) => {
@@ -151,10 +158,14 @@ const MyCars = () => {
           <span>Sort By:</span>
           <button
             className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 flex justify-center items-center"
-            onClick={() => handleSort("dateAdded")}
+            onClick={toggleDateSort}
           >
-            <FaSort /> Date Added
+            <FaSort />
+            {dateSortOrder === "newestToOldest"
+              ? "Date (Newest to Oldest)"
+              : "Date (Oldest to Newest)"}
           </button>
+
           <button
             className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 flex justify-center items-center"
             onClick={togglePriceSort}
@@ -200,7 +211,7 @@ const MyCars = () => {
                 <td className="px-6 py-4 flex space-x-4">
                   <button
                     onClick={() => handleEdit(car)}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-400 flex items-center justify-center gap-1"
+                    className="px-4 py-2 bg-bluePrimary text-white rounded hover:bg-blue-400 flex items-center justify-center gap-1"
                   >
                     <FaEdit /> Edit
                   </button>
@@ -212,7 +223,7 @@ const MyCars = () => {
                   </button>
                   <button
                     onClick={() => handleBookingInfo(car._id)}
-                    className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-400 flex items-center justify-center gap-1"
+                    className="px-4 py-2 bg-yellowSecondary text-gray-700 rounded hover:bg-yellowPrimary flex items-center justify-center gap-1"
                   >
                     <FaInfoCircle /> Booking Info
                   </button>

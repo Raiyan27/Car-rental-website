@@ -9,7 +9,8 @@ const ReviewModal = ({ bookingId, closeModal }) => {
   const [reviewText, setReviewText] = useState("");
   const [carInfo, setCarInfo] = useState(null);
   const { currentUser } = useContext(AuthContext);
-  const reviewerName = currentUser.displayName;
+  const reviewerName = currentUser?.displayName;
+  const photo = currentUser?.photoURL;
 
   useEffect(() => {
     const fetchCarDetails = async () => {
@@ -55,6 +56,7 @@ const ReviewModal = ({ bookingId, closeModal }) => {
         rating,
         comment: reviewText,
         reviewer: reviewerName,
+        reviewerPhoto: photo,
       });
 
       if (response.data?.message === "Review added successfully") {

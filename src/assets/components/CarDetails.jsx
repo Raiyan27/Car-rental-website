@@ -85,13 +85,13 @@ const CarDetails = () => {
             </Swiper>
 
             {car.images.length > 1 && (
-              <div className="mt-4 flex space-x-4">
+              <div className="mt-4 flex space-x-4 mx-2 md:mx-0">
                 {car.images.map((image, index) => (
                   <img
                     key={index}
                     src={image}
                     alt={`Thumbnail ${index + 1}`}
-                    className={`w-20 h-20 object-cover rounded-lg cursor-pointer border-2 ${
+                    className={`w-20 h-20 object-cover rounded-lg cursor-pointer border-2   ${
                       selectedImageIndex === index
                         ? "border-yellow-500"
                         : "border-gray-300"
@@ -102,7 +102,7 @@ const CarDetails = () => {
               </div>
             )}
           </div>
-          <div>
+          <div className=" mx-2 md:mx-0">
             <p className="text-xl font-semibold text-gray-800 mb-4">
               Price Per Day:{" "}
               <span className="text-green-500">${car.price}</span>
@@ -124,7 +124,7 @@ const CarDetails = () => {
               <strong>Life-time booking count:</strong> {car.bookingCount}
             </p>
             <p className="text-gray-600 mb-4">
-              <strong>Owner:</strong> {car.user.name}
+              <strong>Owner:</strong> {car.user.name || "Owner"}
             </p>
             <p className="text-gray-600 mb-4">
               <strong>Reviews:</strong>{" "}

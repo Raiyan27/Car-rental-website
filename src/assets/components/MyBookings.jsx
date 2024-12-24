@@ -44,7 +44,7 @@ const MyBookings = () => {
     };
 
     if (email) fetchBookings();
-  }, [isEditModalOpen]);
+  }, [bookings]);
 
   const fetchCarDetails = async (carIds) => {
     try {
@@ -84,7 +84,7 @@ const MyBookings = () => {
     setSelectedBooking(null);
   };
 
-  const handleDelete = async (id) => {
+  const handleCancel = async (id) => {
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -100,9 +100,6 @@ const MyBookings = () => {
             { action: "cancel" }
           );
           if (response.status === 200) {
-            setBookings((prevBookings) =>
-              prevBookings.filter((booking) => booking._id !== id)
-            );
             Swal.fire(
               "Cancelled!",
               "The booking has been cancelled.",
@@ -112,6 +109,33 @@ const MyBookings = () => {
         } catch (error) {
           console.error("Error canceling booking:", error);
           Swal.fire("Error", "Failed to cancel the booking.", "error");
+        }
+      }
+    });
+  };
+  const handleDelete = async (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Delete it!",
+      cancelButtonText: "Delete",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const response = await axios.delete(
+            `http://localhost:5000/booking-delete/${id}`
+          );
+          if (response.status === 200) {
+            setBookings((prevBookings) =>
+              prevBookings.filter((booking) => booking._id !== id)
+            );
+            Swal.fire("Deleted!", "The booking has been deleted.", "success");
+          }
+        } catch (error) {
+          console.error("Error deleting booking:", error);
+          Swal.fire("Error", "Failed to delete the booking.", "error");
         }
       }
     });
@@ -194,9 +218,20 @@ const MyBookings = () => {
                 <td className="px-6 py-4 hidden md:table-cell">
                   {formatDate(booking.createdAt)}
                 </td>
-                <td className="px-6 py-4 hidden md:table-cell">
+                <td
+                  className={`px-6 py-4 hidden md:table-cell ${
+                    booking.status === "Confirmed"
+                      ? "text-green-500"
+                      : booking.status === "Pending"
+                      ? "text-yellow-600"
+                      : booking.status === "Canceled"
+                      ? "text-red-500"
+                      : ""
+                  }`}
+                >
                   {booking.status}
                 </td>
+
                 <td className="px-6 py-4 flex space-x-4">
                   {booking.status === "Confirmed" ? (
                     <button
@@ -205,16 +240,23 @@ const MyBookings = () => {
                     >
                       <FaStar /> Review
                     </button>
+                  ) : booking.status === "Canceled" ? (
+                    <button
+                      onClick={() => handleDelete(booking._id)}
+                      className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-400 flex items-center justify-center gap-1"
+                    >
+                      <FaTrash /> Delete
+                    </button>
                   ) : (
                     <>
                       <button
                         onClick={() => handleEdit(booking)}
                         className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-400 flex items-center justify-center gap-1"
                       >
-                        <FaEdit /> Edit
+                        <FaEdit /> Modify Date
                       </button>
                       <button
-                        onClick={() => handleDelete(booking._id)}
+                        onClick={() => handleCancel(booking._id)}
                         className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-400 flex items-center justify-center gap-1"
                       >
                         <FaTrash /> Cancel Booking
