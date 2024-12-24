@@ -3,6 +3,7 @@
 **Live URL**: (#)
 Firebase: https://gari-chai-27.web.app/
 Surge: https://gari-chai.surge.sh/
+Netlify: https://gari-chai.netlify.app/
 
 ## 🌟 Project Overview
 

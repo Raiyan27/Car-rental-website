@@ -202,7 +202,7 @@ const MyBookings = () => {
               <th className="px-6 py-3">Car Model</th>
               <th className="px-6 py-3">Booking Dates</th>
               <th className="px-6 py-3">Total Price</th>
-              <th className="px-6 py-3 hidden md:table-cell">Booking Date</th>
+              <th className="px-6 py-3 table-cell">Booking Date</th>
               <th className="px-6 py-3">Booking Status</th>
               <th className="px-6 py-3">Actions</th>
             </tr>
@@ -217,7 +217,10 @@ const MyBookings = () => {
               >
                 <td className="px-6 py-4">
                   <img
-                    src={cars[booking.carId]?.images[0] || "/placeholder.jpg"}
+                    src={
+                      cars[booking.carId]?.images[0] ||
+                      "https://placehold.co/400"
+                    }
                     alt={cars[booking.carId]?.model}
                     className="w-16 h-16 object-cover rounded-md"
                   />
@@ -230,11 +233,11 @@ const MyBookings = () => {
                   {formatDate(booking.endDate)}
                 </td>
                 <td className="px-6 py-4">${booking.totalPrice}</td>
-                <td className="px-6 py-4 hidden md:table-cell">
+                <td className="px-6 py-4 table-cell">
                   {formatDate(booking.createdAt)}
                 </td>
                 <td
-                  className={`px-6 py-4 hidden md:table-cell ${
+                  className={`px-6 py-4 table-cell ${
                     booking.status === "Confirmed"
                       ? "text-green-500"
                       : booking.status === "Pending"

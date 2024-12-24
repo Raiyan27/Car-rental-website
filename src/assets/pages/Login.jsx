@@ -46,7 +46,7 @@ const Login = () => {
   };
   return (
     <div>
-      <div className="hero bg-base-200 min-h-screen">
+      <div className="hero bg-gray-100 min-h-screen">
         <div className="hero-content flex-col lg:flex-row-reverse">
           <div className="text-center">
             <div className="w-96 hidden  lg:block">

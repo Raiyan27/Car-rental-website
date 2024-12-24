@@ -6,7 +6,7 @@ import "swiper/css";
 import axios from "axios";
 import "animate.css";
 import { Helmet } from "react-helmet";
-import { Autoplay, Pagination, Navigation } from "swiper/modules";
+import { Autoplay } from "swiper/modules";
 
 const HomePage = () => {
   const [cars, setCars] = useState([]);
@@ -159,11 +159,7 @@ const HomePage = () => {
               delay: 3000,
               disableOnInteraction: false,
             }}
-            pagination={{
-              clickable: true,
-            }}
-            navigation={true}
-            modules={[Autoplay, Pagination, Navigation]}
+            modules={[Autoplay]}
           >
             {reviews.map((review, index) => (
               <SwiperSlide key={index}>
