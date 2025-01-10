@@ -68,27 +68,29 @@ const AvailableCars = () => {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setView("grid")}
-              className={`p-2 rounded-full ${
-                view === "grid"
-                  ? "bg-yellowSecondary text-gray-800"
-                  : "bg-gray-200"
-              }`}
-            >
-              <FaTh />
-            </button>
-            <button
-              onClick={() => setView("list")}
-              className={`p-2 rounded-full ${
-                view === "list"
-                  ? "bg-yellowSecondary text-gray-800"
-                  : "bg-gray-200"
-              }`}
-            >
-              <FaList />
-            </button>
+          <div className="flex items-center gap-4 pt-4 md:pt-0">
+            <div className="hidden gap-2 sm:flex">
+              <button
+                onClick={() => setView("grid")}
+                className={`p-2 rounded-full ${
+                  view === "grid"
+                    ? "bg-yellowSecondary text-gray-800"
+                    : "bg-gray-200"
+                }`}
+              >
+                <FaTh />
+              </button>
+              <button
+                onClick={() => setView("list")}
+                className={`p-2 rounded-full ${
+                  view === "list"
+                    ? "bg-yellowSecondary text-gray-800"
+                    : "bg-gray-200"
+                }`}
+              >
+                <FaList />
+              </button>
+            </div>
             <button
               onClick={toggleSortOrder}
               className="px-4 py-2 bg-yellowSecondary text-gray-800 rounded-lg hover:bg-yellowPrimary transition"
@@ -101,7 +103,7 @@ const AvailableCars = () => {
         <div
           className={`grid ${
             view === "grid"
-              ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
+              ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8"
               : "grid-cols-1 gap-4"
           }`}
         >
@@ -114,7 +116,9 @@ const AvailableCars = () => {
                 <img
                   src={car.images[0]}
                   alt={car.model}
-                  className="w-full h-96 object-cover"
+                  className={`w-full  object-cover ${
+                    view === "list" ? "h-96" : "h-52"
+                  }`}
                 />
                 <div className="p-4">
                   <h3 className="text-xl font-bold text-gray-800">
@@ -135,7 +139,7 @@ const AvailableCars = () => {
               </div>
             ))
           ) : (
-            <div className="text-center py-16 col-span-3">
+            <div className="text-center py-16 col-span-4  ">
               <p className="text-2xl font-semibold text-gray-500 ">
                 No cars match your search for "
                 <span className="font-bold">{search}</span>".
