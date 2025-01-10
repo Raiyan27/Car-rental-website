@@ -130,6 +130,9 @@ const MyBookings = () => {
       showCancelButton: true,
       confirmButtonText: "Yes, Delete it!",
       cancelButtonText: "Delete",
+      customClass: {
+        confirmButton: "bg-red-500",
+      },
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
