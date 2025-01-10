@@ -50,7 +50,7 @@ const HomePage = () => {
         <title>Gari Chai - Home</title>
       </Helmet>
       <section
-        className="relative h-screen bg-cover bg-center flex items-center justify-center text-gray-900"
+        className="relative h-screen bg-cover bg-center  flex items-center justify-center text-gray-900"
         style={{
           backgroundImage:
             "url('https://i.ibb.co.com/LxrDb9y/2025-G-SUV-HERO-DR.webp')",
@@ -70,7 +70,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      <section className="py-16 bg-gray-100">
+      <section className="py-16 bg-gray-100 px-2">
         <div className="container mx-auto text-center">
           <h2 className="text-3xl font-bold mb-8">Why Choose Us?</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -98,12 +98,12 @@ const HomePage = () => {
         </div>
       </section>
 
-      <section className="py-16">
+      <section className="py-16 px-2">
         <div className="container mx-auto">
           <h2 className="text-3xl font-bold mb-8 text-center">
             Recent Listings
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 ">
             {cars.length > 0 ? (
               cars.map((car) => (
                 <div
@@ -138,7 +138,7 @@ const HomePage = () => {
                 </div>
               ))
             ) : (
-              <div className="h-72 flex items-center justify-center flex-col gap-2 col-span-3">
+              <div className="h-72 flex items-center justify-center flex-col gap-4 col-span-3">
                 <p>LOADING</p>
                 <div className="loading loading-spinner text-warning"></div>
               </div>
@@ -147,7 +147,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      <section className="bg-gray-100 py-16">
+      <section className="bg-gray-100 py-16 px-2">
         <div className="container mx-auto">
           <h2 className="text-3xl font-bold mb-8 text-center ">
             What Our Users Say
@@ -188,7 +188,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      <section className="py-16">
+      <section className="py-16 px-2">
         <div className="container mx-auto">
           <h2 className="text-3xl font-bold mb-8 text-center">
             Special Offers
@@ -252,7 +252,7 @@ const HomePage = () => {
           <h2 className="text-3xl font-bold mb-8 text-center">
             Top Car Maintenance Tips
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 p-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 p-4">
             <div className="bg-white shadow-lg rounded-lg p-6 text-center">
               <h3 className="text-xl font-semibold text-green-500 mb-4">
                 Regular Oil Changes
@@ -310,12 +310,12 @@ const HomePage = () => {
           </div>
         </div>
       </section>
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-white px-2">
         <div className="container mx-auto">
           <h2 className="text-3xl font-bold mb-8 text-center">
             Frequently Asked Questions
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-4">
             <div className="bg-white shadow-lg rounded-lg p-6">
               <h3 className="text-xl font-semibold mb-4">
                 What documents do I need to rent a car?

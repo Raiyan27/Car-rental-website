@@ -100,15 +100,18 @@ const EditBookingModal = ({ bookingData, closeModal }) => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white p-6 rounded-lg max-w-lg w-full shadow-xl">
+      <div className="bg-white p-6 rounded-lg max-w-lg w-full shadow-xl mx-4 my-4">
         <h2 className="text-2xl font-bold mb-4 text-center">
           Change Booking Date
         </h2>
 
         <div className="text-center mb-4">
           <p className="text-lg font-semibold">{car.model}</p>
-          <p className="text-gray-600 mb-2">
-            Price Per Day: <span className="font-bold">${car.price}</span>
+          <p className="text-lg font-semibold">
+            Price Per Day:{" "}
+            <span className="font-bold">
+              {car.price ? `$${car.price}` : "Loading..."}
+            </span>
           </p>
         </div>
 
@@ -169,7 +172,11 @@ const EditBookingModal = ({ bookingData, closeModal }) => {
         <div className="mb-6 text-center">
           <p className="text-lg font-semibold">
             Total Price:{" "}
-            <span className="font-bold">${calculateTotalPrice()}</span>
+            <span className="font-bold">
+              {isNaN(calculateTotalPrice())
+                ? "Calculating Price"
+                : `$${calculateTotalPrice()}`}
+            </span>
           </p>
         </div>
 

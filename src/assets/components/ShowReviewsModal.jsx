@@ -25,7 +25,7 @@ const ShowReviewsModal = ({ carId, closeModal }) => {
   }, [carId]);
 
   return (
-    <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50 px-4">
       <div className="bg-white p-8 rounded-lg max-w-lg w-full shadow-xl">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-semibold text-gray-800">Car Reviews</h2>

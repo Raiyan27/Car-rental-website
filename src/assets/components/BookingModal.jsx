@@ -110,7 +110,7 @@ const BookingModal = ({ car, closeModal }) => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white p-6 rounded-lg max-w-lg w-full shadow-xl">
+      <div className="bg-white max-h-[600px] p-6 mx-4 my-4 rounded-lg max-w-lg w-full shadow-xl overflow-y-auto">
         <h2 className="text-2xl font-bold mb-4 text-center">Confirm Booking</h2>
 
         <div className="text-center mb-4">

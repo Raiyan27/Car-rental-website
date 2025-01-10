@@ -109,6 +109,9 @@ const MyCars = () => {
       showCancelButton: true,
       confirmButtonText: "Yes, delete it!",
       cancelButtonText: "Cancel",
+      customClass: {
+        confirmButton: "bg-red-500",
+      },
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
@@ -172,7 +175,7 @@ const MyCars = () => {
   }
 
   return (
-    <div className="container mx-auto py-16 min-h-screen">
+    <div className="container mx-auto py-16 min-h-screen px-4">
       <div className="flex justify-center mb-4">
         <h1 className="text-3xl font-bold">My Cars</h1>
       </div>

@@ -62,11 +62,11 @@ const CarDetails = () => {
     );
 
   return (
-    <div className="py-16 bg-gray-100 min-h-screen">
+    <div className="py-16 bg-gray-100 min-h-screen px-4">
       <div className="container mx-auto">
         <h2 className="text-3xl font-bold mb-8 text-center">{car.model}</h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div>
+          <div className="">
             <Swiper
               spaceBetween={20}
               slidesPerView={1}
@@ -77,17 +77,19 @@ const CarDetails = () => {
             >
               {car.images.map((image, index) => (
                 <SwiperSlide key={index}>
-                  <img
-                    src={image}
-                    alt={`Car Image ${index + 1}`}
-                    className="rounded-lg shadow-lg w-full max-w-[650px]"
-                  />
+                  <div className="flex items-center justify-center">
+                    <img
+                      src={image}
+                      alt={`Car Image ${index + 1}`}
+                      className="rounded-lg shadow-lg w-full max-w-[650px]"
+                    />
+                  </div>
                 </SwiperSlide>
               ))}
             </Swiper>
 
             {car.images.length > 1 && (
-              <div className="mt-4 flex space-x-4 mx-2 md:mx-0">
+              <div className="mt-4 flex space-x-4 mx-2 md:mx-0 items-center justify-center">
                 {car.images.map((image, index) => (
                   <img
                     key={index}
@@ -104,7 +106,7 @@ const CarDetails = () => {
               </div>
             )}
           </div>
-          <div className=" mx-2 md:mx-0">
+          <div className="mx-2 px-4 sm:px-12 md:px-8 ld:px-0 md:mx-0 ">
             <p className="text-xl font-semibold text-gray-800 mb-4">
               Price Per Day:{" "}
               <span className="text-green-500">${car.price}</span>

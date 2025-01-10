@@ -98,6 +98,9 @@ const MyBookings = () => {
       showCancelButton: true,
       confirmButtonText: "Yes, Cancel it!",
       cancelButtonText: "Cancel",
+      customClass: {
+        confirmButton: "bg-red-500",
+      },
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
@@ -179,7 +182,7 @@ const MyBookings = () => {
   }
 
   return (
-    <div className="container mx-auto py-16 min-h-screen">
+    <div className="container mx-auto py-16 min-h-screen px-4">
       <Helmet>
         <meta charSet="utf-8" />
         <title>Gari Chai - My Bookings</title>
