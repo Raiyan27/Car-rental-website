@@ -18,6 +18,7 @@ const AddCarPage = () => {
   const [images, setImages] = useState([]);
   const navigate = useNavigate();
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -101,16 +102,18 @@ const AddCarPage = () => {
     const payload = {
       ...formData,
       price: price,
-      features: formData.features
-        ? formData.features
-            .split(",")
-            .map((f) => f.trim())
-            .filter((f) => f)
-        : [],
+      features:
+        typeof formData.features === "string" && formData.features
+          ? formData.features
+              .split(",")
+              .map((f) => f.trim())
+              .filter((f) => f)
+          : [],
       images,
       bookingCount: 0,
     };
 
+    setIsSubmitting(true);
     try {
       console.log("Sending payload:", payload);
       const response = await api.post("/cars", payload);
@@ -134,6 +137,8 @@ const AddCarPage = () => {
       } else {
         toast.error("Failed to add car. Please try again.");
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -328,9 +333,17 @@ const AddCarPage = () => {
 
           <button
             type="submit"
-            className="w-full bg-bluePrimary text-accent font-bold py-2 px-4 rounded hover:bg-blueSecondary focus:outline-none focus:ring focus:ring-blueSecondary"
+            disabled={isSubmitting}
+            className="w-full bg-bluePrimary text-accent font-bold py-2 px-4 rounded hover:bg-blueSecondary focus:outline-none focus:ring focus:ring-blueSecondary disabled:opacity-50"
           >
-            Add Car
+            {isSubmitting ? (
+              <>
+                <span className="loading loading-spinner loading-sm"></span>
+                Adding Car...
+              </>
+            ) : (
+              "Add Car"
+            )}
           </button>
         </form>
       </div>

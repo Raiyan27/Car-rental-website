@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Lottie from "lottie-react";
 import LoginAnimationData from "../Lottie/login-animation.json";
 import {
@@ -14,34 +14,44 @@ import { Helmet } from "react-helmet";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const form = e.target;
     const email = form.email.value;
     const password = form.password.value;
 
+    setIsLoading(true);
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
-        password
+        password,
       );
       toast.success("Login Successful!");
       navigate("/");
     } catch (e) {
       toast.error(`Login Failed! ${e.message}`);
       console.log(e);
+    } finally {
+      setIsLoading(false);
     }
   };
+
   const handleGoogleLogin = async () => {
+    setIsGoogleLoading(true);
     const provider = new GoogleAuthProvider();
-    const userCredential = await signInWithPopup(auth, provider);
     try {
+      const userCredential = await signInWithPopup(auth, provider);
       toast.success("Login Successful!");
       navigate("/");
     } catch (e) {
       toast.error(`Login Failed! ${e.message}`);
       console.log(e);
+    } finally {
+      setIsGoogleLoading(false);
     }
   };
   return (
@@ -81,8 +91,18 @@ const Login = () => {
                 />
               </div>
               <div className="form-control mt-6">
-                <button className="btn btn-primary bg-bluePrimary hover:bg-blueSecondary">
-                  Login
+                <button
+                  className="btn btn-primary bg-bluePrimary hover:bg-blueSecondary"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <span className="loading loading-spinner loading-sm"></span>
+                      Logging in...
+                    </>
+                  ) : (
+                    "Login"
+                  )}
                 </button>
 
                 <div className="divider">OR</div>
@@ -90,11 +110,24 @@ const Login = () => {
                 <button
                   onClick={handleGoogleLogin}
                   className="flex items-center justify-center w-full py-3 border bg-bluePrimary rounded-lg hover:bg-blueSecondary"
+                  disabled={isGoogleLoading}
                 >
-                  <FcGoogle />
-                  <span className="text-gray-700 dark:text-black ml-2">
-                    Login with Google
-                  </span>
+                  {isGoogleLoading ? (
+                    <>
+                      <span className="loading loading-spinner loading-sm"></span>
+                      <FcGoogle />
+                      <span className="text-gray-700 dark:text-black ml-2">
+                        Signing in...
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <FcGoogle />
+                      <span className="text-gray-700 dark:text-black ml-2">
+                        Login with Google
+                      </span>
+                    </>
+                  )}
                 </button>
               </div>
               <div className="text-center mt-4">

@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import { useContext, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FaEdit, FaTrash, FaStar } from "react-icons/fa";
 import Swal from "sweetalert2";
@@ -18,6 +18,7 @@ const MyBookings = () => {
   const [cars, setCars] = useState({});
   const { currentUser } = useContext(AuthContext);
   const [isDataVizModalOpen, setIsDataVizModalOpen] = useState(false);
+  const [deletingBookings, setDeletingBookings] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const email = currentUser?.email;
 
@@ -128,6 +129,7 @@ const MyBookings = () => {
       },
     }).then(async (result) => {
       if (result.isConfirmed) {
+        setDeletingBookings((prev) => new Set(prev).add(id));
         try {
           const response = await api.delete(`/bookings/${id}`);
           if (response.data.success) {
@@ -139,6 +141,12 @@ const MyBookings = () => {
         } catch (error) {
           console.error("Error deleting booking:", error);
           Swal.fire("Error", "Failed to delete the booking.", "error");
+        } finally {
+          setDeletingBookings((prev) => {
+            const newSet = new Set(prev);
+            newSet.delete(id);
+            return newSet;
+          });
         }
       }
     });
@@ -219,7 +227,7 @@ const MyBookings = () => {
                       "https://placehold.co/400"
                     }
                     alt={cars[booking.carId]?.model}
-                    className="w-16 h-16 object-cover rounded-md"
+                    className="w-12 h-12 object-cover rounded-md aspect-video"
                   />
                 </td>
                 <td className="px-6 py-4">
@@ -247,7 +255,7 @@ const MyBookings = () => {
                   {booking.status}
                 </td>
 
-                <td className="px-6 py-4 flex space-x-4">
+                <td className="px-6 py-4 flex space-x-4 items-center">
                   {booking.status === "Confirmed" ? (
                     <button
                       onClick={() => handleReview(booking)}
@@ -258,9 +266,19 @@ const MyBookings = () => {
                   ) : booking.status === "Canceled" ? (
                     <button
                       onClick={() => handleDelete(booking._id)}
-                      className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-400 flex items-center justify-center gap-1"
+                      disabled={deletingBookings.has(booking._id)}
+                      className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-400 flex items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <FaTrash /> Delete
+                      {deletingBookings.has(booking._id) ? (
+                        <>
+                          <div className="loading loading-spinner loading-sm"></div>
+                          Deleting...
+                        </>
+                      ) : (
+                        <>
+                          <FaTrash /> Delete
+                        </>
+                      )}
                     </button>
                   ) : (
                     <>

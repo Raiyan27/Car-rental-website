@@ -10,6 +10,7 @@ const BookingModal = ({ car, closeModal }) => {
   const [endDate, setEndDate] = useState(new Date());
   const [error, setError] = useState("");
   const [existingBookings, setExistingBookings] = useState([]);
+  const [isBooking, setIsBooking] = useState(false);
   const { currentUser } = useContext(AuthContext);
 
   useEffect(() => {
@@ -60,6 +61,7 @@ const BookingModal = ({ car, closeModal }) => {
       confirmButtonText: "Yes, Confirm Booking",
     }).then(async (result) => {
       if (result.isConfirmed) {
+        setIsBooking(true);
         try {
           const response = await api.post("/bookings", {
             carId: car._id,
@@ -88,6 +90,8 @@ const BookingModal = ({ car, closeModal }) => {
             icon: "error",
             confirmButtonColor: "#d33",
           });
+        } finally {
+          setIsBooking(false);
         }
       }
     });
@@ -203,12 +207,19 @@ const BookingModal = ({ car, closeModal }) => {
           </button>
           <button
             onClick={handleSubmit}
-            disabled={isConfirmDisabled}
+            disabled={isConfirmDisabled || isBooking}
             className={`px-6 py-2 ${
-              isConfirmDisabled ? "bg-gray-400" : "bg-green-500"
+              isConfirmDisabled || isBooking ? "bg-gray-400" : "bg-green-500"
             } text-white rounded-lg text-sm hover:bg-green-600`}
           >
-            Confirm Booking
+            {isBooking ? (
+              <>
+                <span className="loading loading-spinner loading-sm"></span>
+                Booking...
+              </>
+            ) : (
+              "Confirm Booking"
+            )}
           </button>
         </div>
       </div>

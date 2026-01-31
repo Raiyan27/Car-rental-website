@@ -32,7 +32,8 @@ const startServer = async () => {
     // Request logging middleware
     app.use((req, res, next) => {
       const start = Date.now();
-      console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+      const timestamp = new Date().toLocaleString();
+      console.log(`[${timestamp}] ${req.method} ${req.url}`);
 
       res.on("finish", () => {
         const duration = Date.now() - start;

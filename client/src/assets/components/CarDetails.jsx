@@ -15,6 +15,7 @@ const CarDetails = () => {
   const swiperRef = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isReviewsModalOpen, setIsReviewsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
   const { currentUser } = useContext(AuthContext);
 
   useEffect(() => {
@@ -24,6 +25,8 @@ const CarDetails = () => {
         setCar(response.data.data);
       } catch (error) {
         console.error("Error fetching car details:", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchCar();
@@ -52,7 +55,7 @@ const CarDetails = () => {
     setIsReviewsModalOpen(false);
   };
 
-  if (!car)
+  if (loading || !car)
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="loading loading-spinner text-warning"></div>

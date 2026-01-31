@@ -186,21 +186,42 @@ export const updateCar = asyncHandler(async (req, res) => {
 
   // Handle image updates if provided
   if (images && images.length > 0) {
-    // Delete old images
-    for (const img of car.images) {
-      await deleteImage(img.public_id);
-    }
+    // Separate existing images (objects) from new images (base64 strings)
+    const existingImages = images.filter(
+      (img) => typeof img === "object" && img.url,
+    );
+    const newBase64Images = images.filter((img) => typeof img === "string");
 
-    // Upload new images
-    const uploadedImages = [];
-    try {
-      for (const base64Image of images) {
-        const uploadedImage = await uploadImage(base64Image, "gari-chai/cars");
-        uploadedImages.push(uploadedImage);
+    // If we have new images to upload, delete old images that are not being kept
+    if (newBase64Images.length > 0) {
+      const imagesToDelete = car.images.filter(
+        (oldImg) =>
+          !existingImages.some(
+            (newImg) => newImg.public_id === oldImg.public_id,
+          ),
+      );
+
+      for (const img of imagesToDelete) {
+        await deleteImage(img.public_id);
       }
-      updateData.images = uploadedImages;
-    } catch (error) {
-      return ApiResponse.error(res, "Failed to upload new images", 500);
+
+      // Upload new base64 images
+      const uploadedImages = [];
+      try {
+        for (const base64Image of newBase64Images) {
+          const uploadedImage = await uploadImage(
+            base64Image,
+            "gari-chai/cars",
+          );
+          uploadedImages.push(uploadedImage);
+        }
+        updateData.images = [...existingImages, ...uploadedImages];
+      } catch (error) {
+        return ApiResponse.error(res, "Failed to upload new images", 500);
+      }
+    } else {
+      // No new images, just update with existing images
+      updateData.images = existingImages;
     }
   }
 

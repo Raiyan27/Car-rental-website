@@ -23,7 +23,8 @@ export const errorHandler = (err, req, res, next) => {
   const message = err.message || "Internal server error";
 
   // Log error
-  console.error(`[${new Date().toISOString()}] Error ${statusCode}:`, {
+  const timestamp = new Date().toLocaleString();
+  console.error(`[${timestamp}] Error ${statusCode}:`, {
     message,
     url: req.url,
     method: req.method,

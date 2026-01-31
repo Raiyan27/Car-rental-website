@@ -30,6 +30,7 @@ const MyCars = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [deletingCars, setDeletingCars] = useState(new Set());
 
   const email = currentUser?.email;
 
@@ -110,6 +111,7 @@ const MyCars = () => {
       },
     }).then(async (result) => {
       if (result.isConfirmed) {
+        setDeletingCars((prev) => new Set(prev).add(id));
         try {
           await api.delete(`/cars/${id}`);
           setCars((prevCars) => prevCars.filter((car) => car._id !== id));
@@ -117,6 +119,12 @@ const MyCars = () => {
         } catch (error) {
           console.error("Error deleting car:", error);
           Swal.fire("Error", "Failed to delete the car.", "error");
+        } finally {
+          setDeletingCars((prev) => {
+            const newSet = new Set(prev);
+            newSet.delete(id);
+            return newSet;
+          });
         }
       }
     });
@@ -243,9 +251,19 @@ const MyCars = () => {
                   </button>
                   <button
                     onClick={() => handleDelete(car._id)}
-                    className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-400 flex items-center justify-center gap-1"
+                    disabled={deletingCars.has(car._id)}
+                    className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-400 flex items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <FaTrash /> Delete
+                    {deletingCars.has(car._id) ? (
+                      <>
+                        <div className="loading loading-spinner loading-sm"></div>
+                        Deleting...
+                      </>
+                    ) : (
+                      <>
+                        <FaTrash /> Delete
+                      </>
+                    )}
                   </button>
                   <button
                     onClick={() => handleBookingInfo(car._id)}

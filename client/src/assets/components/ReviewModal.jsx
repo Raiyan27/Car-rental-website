@@ -8,6 +8,7 @@ const ReviewModal = ({ bookingId, closeModal }) => {
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
   const [carInfo, setCarInfo] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { currentUser } = useContext(AuthContext);
   const reviewerName = currentUser?.displayName;
   const photo = currentUser?.photoURL;
@@ -57,6 +58,7 @@ const ReviewModal = ({ bookingId, closeModal }) => {
       return;
     }
 
+    setIsSubmitting(true);
     try {
       const response = await api.post("/reviews", {
         car: bookingId.carId,
@@ -78,6 +80,8 @@ const ReviewModal = ({ bookingId, closeModal }) => {
     } catch (error) {
       console.error("Error submitting review:", error);
       Swal.fire("Error", "Failed to submit the review.", "error");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -141,9 +145,17 @@ const ReviewModal = ({ bookingId, closeModal }) => {
             <div className="flex justify-end space-x-4">
               <button
                 onClick={handleSubmitReview}
-                className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-400"
+                disabled={isSubmitting}
+                className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-400 disabled:opacity-50"
               >
-                Submit Review
+                {isSubmitting ? (
+                  <>
+                    <span className="loading loading-spinner loading-sm"></span>
+                    Submitting...
+                  </>
+                ) : (
+                  "Submit Review"
+                )}
               </button>
               <button
                 onClick={closeModal}

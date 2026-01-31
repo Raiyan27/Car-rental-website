@@ -11,6 +11,7 @@ const EditBookingModal = ({ bookingData, closeModal }) => {
   const [endDate, setEndDate] = useState(new Date(bookingData.endDate));
   const [error, setError] = useState("");
   const [car, setCar] = useState({});
+  const [isUpdating, setIsUpdating] = useState(false);
   const { currentUser } = useContext(AuthContext);
 
   useEffect(() => {
@@ -64,6 +65,7 @@ const EditBookingModal = ({ bookingData, closeModal }) => {
       confirmButtonText: "Yes, Change Booking Date",
     }).then(async (result) => {
       if (result.isConfirmed) {
+        setIsUpdating(true);
         try {
           const response = await api.patch(`/bookings/${bookingData._id}`, {
             startDate: startDate.toISOString(),
@@ -97,6 +99,8 @@ const EditBookingModal = ({ bookingData, closeModal }) => {
             icon: "error",
             confirmButtonColor: "#d33",
           });
+        } finally {
+          setIsUpdating(false);
         }
       }
     });
@@ -195,12 +199,19 @@ const EditBookingModal = ({ bookingData, closeModal }) => {
           </button>
           <button
             onClick={handleSubmit}
-            disabled={isConfirmDisabled}
+            disabled={isConfirmDisabled || isUpdating}
             className={`px-6 py-2 ${
-              isConfirmDisabled ? "bg-gray-400" : "bg-green-500"
+              isConfirmDisabled || isUpdating ? "bg-gray-400" : "bg-green-500"
             } text-white rounded-lg text-sm hover:bg-green-600`}
           >
-            Confirm Date Change
+            {isUpdating ? (
+              <>
+                <span className="loading loading-spinner loading-sm"></span>
+                Updating...
+              </>
+            ) : (
+              "Confirm Date Change"
+            )}
           </button>
         </div>
       </div>

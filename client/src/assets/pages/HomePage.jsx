@@ -11,7 +11,7 @@ import { Autoplay } from "swiper/modules";
 const HomePage = () => {
   const [cars, setCars] = useState([]);
   const [reviews, setReviews] = useState([]);
-  const [loading, setLoading] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     api

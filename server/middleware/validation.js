@@ -8,7 +8,9 @@ import Joi from "joi";
  */
 export const validate = (schema, property = "body") => {
   return (req, res, next) => {
-    console.log(`Validating ${property}:`, req[property]);
+    if (process.env.NODE_ENV === "development") {
+      console.log(`Validating ${property}:`, req[property]);
+    }
     const { error, value } = schema.validate(req[property], {
       abortEarly: false,
       stripUnknown: true,
@@ -26,7 +28,9 @@ export const validate = (schema, property = "body") => {
       );
 
       if (filteredErrors.length > 0) {
-        console.log("Validation errors:", filteredErrors);
+        if (process.env.NODE_ENV === "development") {
+          console.log("Validation errors:", filteredErrors);
+        }
         const errors = filteredErrors.map((detail) => ({
           field: detail.path.join("."),
           message: detail.message,
@@ -67,7 +71,23 @@ export const schemas = {
     features: Joi.array().items(Joi.string()),
     description: Joi.string().min(10).max(1000),
     location: Joi.string().trim(),
-    images: Joi.array().items(Joi.string()).min(1),
+    images: Joi.array()
+      .items(
+        Joi.alternatives().try(
+          Joi.string(), // For new base64 images
+          Joi.object({
+            // For existing uploaded images
+            public_id: Joi.string().required(),
+            url: Joi.string().required(),
+            width: Joi.number(),
+            height: Joi.number(),
+            format: Joi.string(),
+            bytes: Joi.number(),
+            _id: Joi.string(),
+          }),
+        ),
+      )
+      .min(1),
   }).min(1), // At least one field must be provided
 
   // Booking validation schemas

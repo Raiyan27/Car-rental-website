@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { toast } from "react-toastify";
 import api from "../../utils/api";
@@ -15,6 +15,7 @@ const EditModal = ({ carData, isOpen, onClose }) => {
   });
   const [images, setImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     if (isOpen && carData) {
@@ -23,7 +24,9 @@ const EditModal = ({ carData, isOpen, onClose }) => {
         price: carData.price,
         availability: carData.availability,
         registration: carData.registration,
-        features: carData.features,
+        features: Array.isArray(carData.features)
+          ? carData.features.join(", ")
+          : carData.features || "",
         description: carData.description,
         location: carData.location,
       });
@@ -88,15 +91,17 @@ const EditModal = ({ carData, isOpen, onClose }) => {
     const payload = {
       ...formData,
       price: parseFloat(formData.price),
-      features: formData.features
-        ? formData.features
-            .split(",")
-            .map((f) => f.trim())
-            .filter((f) => f)
-        : [],
+      features:
+        typeof formData.features === "string" && formData.features
+          ? formData.features
+              .split(",")
+              .map((f) => f.trim())
+              .filter((f) => f)
+          : [],
       images,
     };
 
+    setIsUpdating(true);
     try {
       const response = await api.patch(`/cars/${carData._id}`, payload);
 
@@ -108,6 +113,8 @@ const EditModal = ({ carData, isOpen, onClose }) => {
     } catch (error) {
       console.error("Error updating the car:", error);
       toast.error("Error updating car.");
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -305,9 +312,17 @@ const EditModal = ({ carData, isOpen, onClose }) => {
             </button>
             <button
               type="submit"
-              className="bg-bluePrimary text-accent font-bold py-2 px-4 rounded hover:bg-blueSecondary"
+              disabled={isUpdating}
+              className="bg-bluePrimary text-accent font-bold py-2 px-4 rounded hover:bg-blueSecondary disabled:opacity-50"
             >
-              Save Changes
+              {isUpdating ? (
+                <>
+                  <span className="loading loading-spinner loading-sm"></span>
+                  Updating...
+                </>
+              ) : (
+                "Save Changes"
+              )}
             </button>
           </div>
         </form>
