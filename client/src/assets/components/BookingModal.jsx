@@ -4,6 +4,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import api from "../../utils/api";
 import Swal from "sweetalert2";
 import { AuthContext } from "../Auth/AuthContext";
+import PropTypes from "prop-types";
 
 const BookingModal = ({ car, closeModal }) => {
   const [startDate, setStartDate] = useState(new Date());
@@ -66,6 +67,8 @@ const BookingModal = ({ car, closeModal }) => {
         try {
           const response = await api.post("/bookings", {
             carId: car._id,
+            carModel: car.model,
+            carImageUrl: car.images[0].url,
             startDate: startDate.toISOString(),
             endDate: endDate.toISOString(),
             totalPrice,
@@ -288,6 +291,11 @@ const BookingModal = ({ car, closeModal }) => {
       </div>
     </div>
   );
+};
+
+BookingModal.propTypes = {
+  car: PropTypes.object.isRequired,
+  closeModal: PropTypes.func.isRequired,
 };
 
 export default BookingModal;

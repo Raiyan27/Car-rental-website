@@ -93,6 +93,8 @@ export const schemas = {
   // Booking validation schemas
   createBooking: Joi.object({
     carId: Joi.string().required(),
+    carModel: Joi.string().required(),
+    carImageUrl: Joi.string().required(),
     startDate: Joi.date().required(),
     endDate: Joi.date().when("startDate", {
       is: Joi.exist(),

@@ -388,16 +388,13 @@ const MyBookings = () => {
               >
                 <td className="px-6 py-4">
                   <img
-                    src={
-                      cars[booking.carId]?.images?.[0]?.url ||
-                      "https://placehold.co/400"
-                    }
-                    alt={cars[booking.carId]?.model}
+                    src={booking.carImageUrl || "https://placehold.co/400"}
+                    alt={booking.carModel || "Car Image"}
                     className="w-12 h-12 object-cover rounded-md aspect-video"
                   />
                 </td>
                 <td className="px-6 py-4">
-                  {cars[booking.carId]?.model || "Loading..."}
+                  {booking.carModel || "Loading..."}
                 </td>
                 <td className="px-6 py-4">
                   {formatDate(booking.startDate)} -{" "}

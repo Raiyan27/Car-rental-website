@@ -7,7 +7,15 @@ import { asyncHandler } from "../middleware/errorHandler.js";
  * Create new booking
  */
 export const createBooking = asyncHandler(async (req, res) => {
-  const { carId, startDate, endDate, totalPrice, email } = req.body;
+  const {
+    carId,
+    carModel,
+    carImageUrl,
+    startDate,
+    endDate,
+    totalPrice,
+    email,
+  } = req.body;
 
   // Check if car exists and is available
   const car = await Car.findById(carId);
@@ -38,6 +46,8 @@ export const createBooking = asyncHandler(async (req, res) => {
 
   const bookingData = {
     carId,
+    carModel,
+    carImageUrl,
     clientEmail: email,
     startDate: start,
     endDate: end,

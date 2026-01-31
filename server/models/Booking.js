@@ -9,6 +9,16 @@ const bookingSchema = new Schema({
     required: true,
     index: true,
   },
+  carModel: {
+    type: String,
+    required: true,
+    index: true,
+  },
+  carImageUrl: {
+    type: String,
+    required: true,
+    index: true,
+  },
   clientEmail: {
     type: String,
     required: true,
