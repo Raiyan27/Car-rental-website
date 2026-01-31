@@ -150,7 +150,7 @@ const MyCars = () => {
     });
   };
 
-  const handleModalClose = (updatedCar) => {
+  const handleModalClose = () => {
     setIsModalOpen(false);
   };
 
@@ -183,9 +183,87 @@ const MyCars = () => {
   };
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center flex-col gap-2">
-        <p>LOADING</p>
-        <div className="loading loading-spinner text-warning"></div>
+      <div className="container mx-auto py-16 min-h-screen px-4">
+        {/* Title Skeleton */}
+        <div className="flex justify-center mb-4">
+          <div className="h-8 bg-gray-300 rounded w-32 animate-pulse"></div>
+        </div>
+
+        {/* Controls Skeleton */}
+        <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-8">
+          <div className="h-10 bg-gray-300 rounded w-64 animate-pulse"></div>
+          <div className="flex flex-col sm:flex-row gap-2 space-x-4 items-center justify-center">
+            <div className="h-4 bg-gray-300 rounded w-20 animate-pulse"></div>
+            <div className="h-10 bg-gray-300 rounded w-48 animate-pulse"></div>
+            <div className="h-10 bg-gray-300 rounded w-40 animate-pulse"></div>
+          </div>
+        </div>
+
+        {/* Table Skeleton */}
+        <div className="overflow-x-auto">
+          <table className="min-w-full bg-white rounded-lg overflow shadow">
+            <thead>
+              <tr className="bg-gray-200 text-left">
+                <th className="px-6 py-3">
+                  <div className="h-4 bg-gray-300 rounded w-20 animate-pulse"></div>
+                </th>
+                <th className="px-6 py-3">
+                  <div className="h-4 bg-gray-300 rounded w-16 animate-pulse"></div>
+                </th>
+                <th className="px-6 py-3">
+                  <div className="h-4 bg-gray-300 rounded w-24 animate-pulse"></div>
+                </th>
+                <th className="px-6 py-3 hidden md:table-cell">
+                  <div className="h-4 bg-gray-300 rounded w-20 animate-pulse"></div>
+                </th>
+                <th className="px-6 py-3 hidden md:table-cell">
+                  <div className="h-4 bg-gray-300 rounded w-16 animate-pulse"></div>
+                </th>
+                <th className="px-6 py-3">
+                  <div className="h-4 bg-gray-300 rounded w-12 animate-pulse"></div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...Array(5)].map((_, index) => (
+                <tr key={index} className="hover:bg-gray-100">
+                  <td className="px-6 py-4">
+                    <div className="w-16 h-16 bg-gray-300 rounded animate-pulse"></div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="h-4 bg-gray-300 rounded w-24 animate-pulse"></div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="h-4 bg-gray-300 rounded w-16 animate-pulse"></div>
+                  </td>
+                  <td className="px-6 py-4 hidden md:table-cell">
+                    <div className="h-4 bg-gray-300 rounded w-8 animate-pulse"></div>
+                  </td>
+                  <td className="px-6 py-4 hidden md:table-cell">
+                    <div className="h-4 bg-gray-300 rounded w-32 animate-pulse"></div>
+                  </td>
+                  <td className="px-6 py-4 flex space-x-4">
+                    <div className="h-8 bg-gray-300 rounded w-16 animate-pulse"></div>
+                    <div className="h-8 bg-gray-300 rounded w-20 animate-pulse"></div>
+                    <div className="h-8 bg-gray-300 rounded w-24 animate-pulse"></div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination Skeleton */}
+        <div className="flex items-center justify-center space-x-2 mt-4">
+          <div className="h-10 bg-gray-300 rounded w-20 animate-pulse"></div>
+          {[...Array(3)].map((_, index) => (
+            <div
+              key={index}
+              className="h-10 bg-gray-300 rounded w-10 animate-pulse"
+            ></div>
+          ))}
+          <div className="h-10 bg-gray-300 rounded w-16 animate-pulse"></div>
+        </div>
       </div>
     );
   }
@@ -299,8 +377,8 @@ const MyCars = () => {
         {cars.length === 0 && searchQuery && (
           <div className="text-center py-16">
             <p className="text-2xl font-semibold text-gray-500">
-              No cars match your search for "
-              <span className="font-bold">{searchQuery}</span>".
+              No cars match your search for &quot;
+              <span className="font-bold">{searchQuery}</span>&quot;.
             </p>
             <p className="text-gray-400">Try adjusting your search terms.</p>
           </div>

@@ -97,7 +97,7 @@ const CarDetails = () => {
                       <img
                         src={image.url}
                         alt={`Car Image ${index + 1}`}
-                        className="rounded-lg shadow-lg w-full max-w-[650px]"
+                        className="rounded-lg shadow-lg w-full max-w-[650px] aspect-auto"
                         loading="lazy"
                       />
                     </div>
@@ -148,7 +148,8 @@ const CarDetails = () => {
               {car.availability === "Available" ? "Yes" : "No"}
             </p>
             <p className="text-gray-600 mb-4">
-              <strong>Features:</strong> {car.features}
+              <strong>Features:</strong>{" "}
+              {car.features.map((feature) => feature).join(", ")}
             </p>
             <p className="text-gray-600 mb-4">
               <strong>Description:</strong> {car.description}

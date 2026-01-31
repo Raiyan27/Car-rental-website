@@ -337,10 +337,10 @@ const AddCarPage = () => {
             className="w-full bg-bluePrimary text-accent font-bold py-2 px-4 rounded hover:bg-blueSecondary focus:outline-none focus:ring focus:ring-blueSecondary disabled:opacity-50"
           >
             {isSubmitting ? (
-              <>
+              <div className="flex items-center justify-center gap-3">
                 <span className="loading loading-spinner loading-sm"></span>
                 Adding Car...
-              </>
+              </div>
             ) : (
               "Add Car"
             )}

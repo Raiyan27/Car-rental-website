@@ -44,9 +44,41 @@ const AvailableCars = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center flex-col gap-2">
-        <p>LOADING..</p>
-        <div className="loading loading-spinner text-warning"></div>
+      <div className="py-16 p-4 bg-gray-100 min-h-screen">
+        <div className="container mx-auto">
+          <div className="text-3xl font-bold mb-8 text-center h-8 bg-gray-300 rounded animate-pulse mx-auto w-48"></div>
+          <div className="flex flex-col space-y-1 md:flex-row items-center justify-between mb-8">
+            <div className="h-10 bg-gray-300 rounded-lg animate-pulse w-64"></div>
+            <div className="flex items-center gap-4 pt-4 md:pt-0">
+              <div className="hidden gap-2 sm:flex">
+                <div className="w-10 h-10 bg-gray-300 rounded-full animate-pulse"></div>
+                <div className="w-10 h-10 bg-gray-300 rounded-full animate-pulse"></div>
+              </div>
+              <div className="h-10 bg-gray-300 rounded-lg animate-pulse w-48"></div>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            {[...Array(8)].map((_, index) => (
+              <div
+                key={index}
+                className="bg-white shadow-lg rounded-lg overflow-hidden mx-2 md:mx-0"
+              >
+                <div className="h-52 bg-gray-300 animate-pulse"></div>
+                <div className="p-4">
+                  <div className="h-6 bg-gray-300 rounded animate-pulse mb-2"></div>
+                  <div className="h-4 bg-gray-300 rounded animate-pulse mb-1 w-16"></div>
+                  <div className="h-4 bg-gray-300 rounded animate-pulse mb-2 w-24"></div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="h-4 bg-gray-300 rounded animate-pulse w-20"></div>
+                    <div className="h-4 bg-gray-300 rounded animate-pulse w-16"></div>
+                  </div>
+                  <div className="h-4 bg-gray-300 rounded animate-pulse mb-4 w-20"></div>
+                  <div className="h-10 bg-gray-300 rounded-lg animate-pulse"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

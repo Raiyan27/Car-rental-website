@@ -88,7 +88,10 @@ const Header = () => {
                 <img
                   className="w-12 h-12 rounded-full"
                   title={currentUser.displayName || "User"}
-                  src={currentUser.photoURL}
+                  src={
+                    currentUser.photoURL ||
+                    "https://placehold.co/800?text=No+Image&font=roboto"
+                  }
                   alt=""
                 />
               </div>

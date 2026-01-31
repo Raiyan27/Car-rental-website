@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { FaEdit, FaTrash, FaStar } from "react-icons/fa";
 import Swal from "sweetalert2";
@@ -31,33 +31,36 @@ const MyBookings = () => {
     return `${day}-${month}-${year}`;
   };
 
-  const checkReviewedCars = async (carIds) => {
-    if (!email || carIds.length === 0) return;
+  const checkReviewedCars = useCallback(
+    async (carIds) => {
+      if (!email || carIds.length === 0) return;
 
-    try {
-      const reviewedSet = new Set();
+      try {
+        const reviewedSet = new Set();
 
-      for (const carId of carIds) {
-        try {
-          const response = await api.get(`/reviews/car/${carId}`);
-          const reviews = response.data.data;
-          const userReview = reviews.find(
-            (review) => review.reviewer === email,
-          );
+        for (const carId of carIds) {
+          try {
+            const response = await api.get(`/reviews/car/${carId}`);
+            const reviews = response.data.data;
+            const userReview = reviews.find(
+              (review) => review.reviewer === email,
+            );
 
-          if (userReview) {
-            reviewedSet.add(carId);
+            if (userReview) {
+              reviewedSet.add(carId);
+            }
+          } catch (error) {
+            console.error("Error checking reviews for car", carId, ":", error);
           }
-        } catch (error) {
-          console.error("Error checking reviews for car", carId, ":", error);
         }
-      }
 
-      setReviewedCars(reviewedSet);
-    } catch (error) {
-      console.error("Error checking reviewed cars:", error);
-    }
-  };
+        setReviewedCars(reviewedSet);
+      } catch (error) {
+        console.error("Error checking reviewed cars:", error);
+      }
+    },
+    [email],
+  );
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -77,7 +80,7 @@ const MyBookings = () => {
     };
 
     if (email) fetchBookings();
-  }, [email]);
+  }, [email, checkReviewedCars]);
 
   const fetchCarDetails = async (carIds) => {
     try {
@@ -268,9 +271,80 @@ const MyBookings = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center flex-col gap-2">
-        <p>LOADING</p>
-        <div className="loading loading-spinner text-warning"></div>
+      <div className="container mx-auto py-16 min-h-screen px-4">
+        <Helmet>
+          <meta charSet="utf-8" />
+          <title>Gari Chai - My Bookings</title>
+        </Helmet>
+        {/* Header Skeleton */}
+        <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-8">
+          <div className="h-8 bg-gray-300 rounded w-40 animate-pulse"></div>
+          <div className="h-10 bg-gray-300 rounded w-32 animate-pulse"></div>
+        </div>
+
+        {/* Table Skeleton */}
+        <div className="overflow-x-auto">
+          <table className="min-w-full bg-white rounded-lg overflow shadow">
+            <thead>
+              <tr className="bg-gray-200 text-left">
+                <th className="px-6 py-3">
+                  <div className="h-4 bg-gray-300 rounded w-20 animate-pulse"></div>
+                </th>
+                <th className="px-6 py-3">
+                  <div className="h-4 bg-gray-300 rounded w-16 animate-pulse"></div>
+                </th>
+                <th className="px-6 py-3">
+                  <div className="h-4 bg-gray-300 rounded w-24 animate-pulse"></div>
+                </th>
+                <th className="px-6 py-3">
+                  <div className="h-4 bg-gray-300 rounded w-20 animate-pulse"></div>
+                </th>
+                <th className="px-6 py-3 table-cell">
+                  <div className="h-4 bg-gray-300 rounded w-20 animate-pulse"></div>
+                </th>
+                <th className="px-6 py-3">
+                  <div className="h-4 bg-gray-300 rounded w-20 animate-pulse"></div>
+                </th>
+                <th className="px-6 py-3">
+                  <div className="h-4 bg-gray-300 rounded w-12 animate-pulse"></div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...Array(5)].map((_, index) => (
+                <tr
+                  key={index}
+                  className={`hover:bg-gray-100 ${
+                    index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                  }`}
+                >
+                  <td className="px-6 py-4">
+                    <div className="w-12 h-12 bg-gray-300 rounded-md animate-pulse"></div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="h-4 bg-gray-300 rounded w-24 animate-pulse"></div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="h-4 bg-gray-300 rounded w-32 animate-pulse"></div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="h-4 bg-gray-300 rounded w-16 animate-pulse"></div>
+                  </td>
+                  <td className="px-6 py-4 table-cell">
+                    <div className="h-4 bg-gray-300 rounded w-24 animate-pulse"></div>
+                  </td>
+                  <td className="px-6 py-4 table-cell">
+                    <div className="h-4 bg-gray-300 rounded w-16 animate-pulse"></div>
+                  </td>
+                  <td className="px-6 py-4 flex space-x-4 items-center">
+                    <div className="h-8 bg-gray-300 rounded w-20 animate-pulse"></div>
+                    <div className="h-8 bg-gray-300 rounded w-24 animate-pulse"></div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     );
   }
