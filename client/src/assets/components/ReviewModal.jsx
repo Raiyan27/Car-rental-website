@@ -4,7 +4,7 @@ import { FaTimes } from "react-icons/fa";
 import api from "../../utils/api";
 import { AuthContext } from "../Auth/AuthContext";
 
-const ReviewModal = ({ bookingId, closeModal }) => {
+const ReviewModal = ({ bookingId, closeModal, onReviewSubmitted }) => {
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
   const [carInfo, setCarInfo] = useState(null);
@@ -69,6 +69,9 @@ const ReviewModal = ({ bookingId, closeModal }) => {
 
       if (response.data.success) {
         Swal.fire("Success", "Your review has been submitted!", "success");
+        if (onReviewSubmitted) {
+          onReviewSubmitted(bookingId.carId);
+        }
         closeModal();
       } else {
         Swal.fire(
@@ -79,7 +82,31 @@ const ReviewModal = ({ bookingId, closeModal }) => {
       }
     } catch (error) {
       console.error("Error submitting review:", error);
-      Swal.fire("Error", "Failed to submit the review.", "error");
+      let errorMessage = "Failed to submit the review. Please try again.";
+
+      if (error.response) {
+        const { status, data } = error.response;
+
+        if (status === 401) {
+          errorMessage = "You need to be logged in to submit a review.";
+        } else if (status === 403) {
+          errorMessage =
+            data.error || "You don't have permission to review this booking.";
+        } else if (status === 404) {
+          errorMessage = data.error || "Booking or car not found.";
+        } else if (status === 409) {
+          errorMessage = data.error || "You have already reviewed this car.";
+        } else if (status === 400) {
+          errorMessage =
+            data.error || "Invalid review data. Please check your input.";
+        } else if (data.error) {
+          errorMessage = data.error;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      Swal.fire("Error", errorMessage, "error");
     } finally {
       setIsSubmitting(false);
     }

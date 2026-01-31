@@ -20,6 +20,7 @@ const MyBookings = () => {
   const [isDataVizModalOpen, setIsDataVizModalOpen] = useState(false);
   const [deletingBookings, setDeletingBookings] = useState(new Set());
   const [loading, setLoading] = useState(true);
+  const [reviewedCars, setReviewedCars] = useState(new Set()); // Temporary test
   const email = currentUser?.email;
 
   const formatDate = (date) => {
@@ -28,6 +29,34 @@ const MyBookings = () => {
     const month = String(d.getMonth() + 1).padStart(2, "0");
     const year = d.getFullYear();
     return `${day}-${month}-${year}`;
+  };
+
+  const checkReviewedCars = async (carIds) => {
+    if (!email || carIds.length === 0) return;
+
+    try {
+      const reviewedSet = new Set();
+
+      for (const carId of carIds) {
+        try {
+          const response = await api.get(`/reviews/car/${carId}`);
+          const reviews = response.data.data;
+          const userReview = reviews.find(
+            (review) => review.reviewer === email,
+          );
+
+          if (userReview) {
+            reviewedSet.add(carId);
+          }
+        } catch (error) {
+          console.error("Error checking reviews for car", carId, ":", error);
+        }
+      }
+
+      setReviewedCars(reviewedSet);
+    } catch (error) {
+      console.error("Error checking reviewed cars:", error);
+    }
   };
 
   useEffect(() => {
@@ -40,6 +69,7 @@ const MyBookings = () => {
         setLoading(false);
         const carIds = response.data.data.map((booking) => booking.carId);
         fetchCarDetails(carIds);
+        checkReviewedCars(carIds);
       } catch (error) {
         setLoading(false);
         console.error("Error fetching bookings:", error);
@@ -80,6 +110,18 @@ const MyBookings = () => {
     setSelectedBooking(null);
   };
 
+  const handleReviewSubmitted = (carId) => {
+    setReviewedCars((prev) => new Set([...prev, carId]));
+  };
+
+  const handleBookingUpdated = (bookingId, updatedData) => {
+    setBookings((prevBookings) =>
+      prevBookings.map((booking) =>
+        booking._id === bookingId ? { ...booking, ...updatedData } : booking,
+      ),
+    );
+  };
+
   const closeReviewModal = () => {
     setIsReviewModalOpen(false);
     setSelectedBooking(null);
@@ -103,6 +145,14 @@ const MyBookings = () => {
             action: "cancel",
           });
           if (response.data.success) {
+            // Update the booking status in local state
+            setBookings((prevBookings) =>
+              prevBookings.map((booking) =>
+                booking._id === id
+                  ? { ...booking, status: "Canceled" }
+                  : booking,
+              ),
+            );
             Swal.fire(
               "Cancelled!",
               "The booking has been cancelled.",
@@ -111,7 +161,28 @@ const MyBookings = () => {
           }
         } catch (error) {
           console.error("Error canceling booking:", error);
-          Swal.fire("Error", "Failed to cancel the booking.", "error");
+          let errorMessage = "Failed to cancel the booking.";
+
+          if (error.response) {
+            const { status, data } = error.response;
+
+            if (status === 401) {
+              errorMessage = "You need to be logged in to cancel bookings.";
+            } else if (status === 403) {
+              errorMessage =
+                "You don't have permission to cancel this booking.";
+            } else if (status === 404) {
+              errorMessage = "Booking not found.";
+            } else if (status === 400) {
+              errorMessage = data.error || "Invalid cancellation request.";
+            } else if (data.error) {
+              errorMessage = data.error;
+            }
+          } else if (error.message) {
+            errorMessage = error.message;
+          }
+
+          Swal.fire("Error", errorMessage, "error");
         }
       }
     });
@@ -140,7 +211,28 @@ const MyBookings = () => {
           }
         } catch (error) {
           console.error("Error deleting booking:", error);
-          Swal.fire("Error", "Failed to delete the booking.", "error");
+          let errorMessage = "Failed to delete the booking.";
+
+          if (error.response) {
+            const { status, data } = error.response;
+
+            if (status === 401) {
+              errorMessage = "You need to be logged in to delete bookings.";
+            } else if (status === 403) {
+              errorMessage =
+                "You don't have permission to delete this booking.";
+            } else if (status === 404) {
+              errorMessage = "Booking not found.";
+            } else if (status === 400) {
+              errorMessage = data.error || "Invalid delete request.";
+            } else if (data.error) {
+              errorMessage = data.error;
+            }
+          } else if (error.message) {
+            errorMessage = error.message;
+          }
+
+          Swal.fire("Error", errorMessage, "error");
         } finally {
           setDeletingBookings((prev) => {
             const newSet = new Set(prev);
@@ -257,12 +349,21 @@ const MyBookings = () => {
 
                 <td className="px-6 py-4 flex space-x-4 items-center">
                   {booking.status === "Confirmed" ? (
-                    <button
-                      onClick={() => handleReview(booking)}
-                      className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-400 flex items-center justify-center gap-1"
-                    >
-                      <FaStar /> Review
-                    </button>
+                    reviewedCars.has(booking.carId) ? (
+                      <button
+                        disabled
+                        className="px-4 py-2 bg-gray-500 text-white rounded cursor-not-allowed flex items-center justify-center gap-1"
+                      >
+                        <FaStar /> Reviewed
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleReview(booking)}
+                        className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-400 flex items-center justify-center gap-1"
+                      >
+                        <FaStar /> Review
+                      </button>
+                    )
                   ) : booking.status === "Canceled" ? (
                     <button
                       onClick={() => handleDelete(booking._id)}
@@ -307,6 +408,7 @@ const MyBookings = () => {
         <EditBookingModal
           bookingData={selectedBooking}
           closeModal={closeEditModal}
+          onBookingUpdated={handleBookingUpdated}
         />
       )}
 
@@ -314,6 +416,7 @@ const MyBookings = () => {
         <ReviewModal
           bookingId={selectedBooking}
           closeModal={closeReviewModal}
+          onReviewSubmitted={handleReviewSubmitted}
         />
       )}
       {isDataVizModalOpen && (

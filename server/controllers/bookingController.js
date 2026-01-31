@@ -22,9 +22,10 @@ export const createBooking = asyncHandler(async (req, res) => {
   const start = new Date(startDate);
   const end = new Date(endDate);
 
-  // Check for booking conflicts
+  // Check for booking conflicts (only with confirmed bookings)
   const conflict = await Booking.findOne({
     carId,
+    status: "Confirmed",
     $or: [{ startDate: { $lte: end }, endDate: { $gte: start } }],
   });
 
@@ -102,6 +103,36 @@ export const getCarBookings = asyncHandler(async (req, res) => {
 });
 
 /**
+ * Get confirmed bookings for a specific car (public - for booking modal)
+ */
+export const getCarBookingsPublic = asyncHandler(async (req, res) => {
+  const { carId } = req.params;
+
+  // Verify car exists
+  const car = await Car.findById(carId);
+  if (!car) {
+    return ApiResponse.notFound(res, "Car not found");
+  }
+
+  // Get current date (start of today in UTC)
+  const now = new Date();
+  const today = new Date(
+    Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()),
+  );
+
+  // Get confirmed and pending bookings that end today or later
+  const bookings = await Booking.find({
+    carId,
+    status: { $in: ["Confirmed", "Pending"] },
+    endDate: { $gte: today }, // End date is today or later
+  })
+    .sort({ startDate: 1 })
+    .lean();
+
+  ApiResponse.success(res, bookings, "Car bookings retrieved successfully");
+});
+
+/**
  * Update booking (user can update their own bookings)
  */
 export const updateBooking = asyncHandler(async (req, res) => {
@@ -162,13 +193,29 @@ export const updateBookingStatus = asyncHandler(async (req, res) => {
     return ApiResponse.notFound(res, "Booking not found");
   }
 
-  // Verify car ownership for confirm/cancel actions
+  // Allow the booker to cancel their own booking, or the car owner to confirm/cancel
   const car = await Car.findById(booking.carId);
-  if (car.user.email !== req.user.email) {
-    return ApiResponse.forbidden(
-      res,
-      "You can only manage bookings for your own cars",
-    );
+  const isOwner = car.user.email === req.user.email;
+  const isBooker = booking.clientEmail === req.user.email;
+
+  if (action === "cancel") {
+    // Only the booker can cancel their booking
+    if (!isBooker) {
+      return ApiResponse.forbidden(
+        res,
+        "You can only cancel your own bookings",
+      );
+    }
+  } else if (action === "confirm") {
+    // Only the car owner can confirm bookings
+    if (!isOwner) {
+      return ApiResponse.forbidden(
+        res,
+        "You can only confirm bookings for your own cars",
+      );
+    }
+  } else {
+    return ApiResponse.badRequest(res, "Invalid action");
   }
 
   let newStatus;

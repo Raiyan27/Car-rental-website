@@ -112,7 +112,28 @@ const EditModal = ({ carData, isOpen, onClose }) => {
       }
     } catch (error) {
       console.error("Error updating the car:", error);
-      toast.error("Error updating car.");
+      let errorMessage = "Error updating car.";
+
+      if (error.response) {
+        const { status, data } = error.response;
+
+        if (status === 401) {
+          errorMessage = "You need to be logged in to update the car.";
+        } else if (status === 403) {
+          errorMessage = "You don't have permission to update this car.";
+        } else if (status === 404) {
+          errorMessage = "Car not found.";
+        } else if (status === 400) {
+          errorMessage =
+            data.error || "Invalid car data. Please check your input.";
+        } else if (data.error) {
+          errorMessage = data.error;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      toast.error(errorMessage);
     } finally {
       setIsUpdating(false);
     }

@@ -118,7 +118,27 @@ const MyCars = () => {
           Swal.fire("Deleted!", "The car has been deleted.", "success");
         } catch (error) {
           console.error("Error deleting car:", error);
-          Swal.fire("Error", "Failed to delete the car.", "error");
+          let errorMessage = "Failed to delete the car.";
+
+          if (error.response) {
+            const { status, data } = error.response;
+
+            if (status === 401) {
+              errorMessage = "You need to be logged in to delete cars.";
+            } else if (status === 403) {
+              errorMessage = "You don't have permission to delete this car.";
+            } else if (status === 404) {
+              errorMessage = "Car not found.";
+            } else if (status === 400) {
+              errorMessage = data.error || "Invalid delete request.";
+            } else if (data.error) {
+              errorMessage = data.error;
+            }
+          } else if (error.message) {
+            errorMessage = error.message;
+          }
+
+          Swal.fire("Error", errorMessage, "error");
         } finally {
           setDeletingCars((prev) => {
             const newSet = new Set(prev);

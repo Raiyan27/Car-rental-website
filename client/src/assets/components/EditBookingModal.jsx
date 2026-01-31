@@ -6,7 +6,7 @@ import { AuthContext } from "../Auth/AuthContext";
 import PropTypes from "prop-types";
 import api from "../../utils/api";
 
-const EditBookingModal = ({ bookingData, closeModal }) => {
+const EditBookingModal = ({ bookingData, closeModal, onBookingUpdated }) => {
   const [startDate, setStartDate] = useState(new Date(bookingData.startDate));
   const [endDate, setEndDate] = useState(new Date(bookingData.endDate));
   const [error, setError] = useState("");
@@ -83,6 +83,15 @@ const EditBookingModal = ({ bookingData, closeModal }) => {
               confirmButtonColor: "#10B981",
             });
 
+            // Notify parent component of the update
+            if (onBookingUpdated) {
+              onBookingUpdated(bookingData._id, {
+                startDate: startDate.toISOString(),
+                endDate: endDate.toISOString(),
+                totalPrice: totalPrice,
+              });
+            }
+
             closeModal();
           } else {
             Swal.fire({
@@ -93,9 +102,32 @@ const EditBookingModal = ({ bookingData, closeModal }) => {
             });
           }
         } catch (error) {
+          console.error("Booking edit error:", error);
+          let errorMessage = "Something went wrong.";
+
+          if (error.response) {
+            const { status, data } = error.response;
+
+            if (status === 401) {
+              errorMessage = "You need to be logged in to edit bookings.";
+            } else if (status === 403) {
+              errorMessage = "You don't have permission to edit this booking.";
+            } else if (status === 404) {
+              errorMessage = "Booking not found.";
+            } else if (status === 409) {
+              errorMessage = "Booking conflict with existing reservations.";
+            } else if (status === 400) {
+              errorMessage = data.error || "Invalid booking details.";
+            } else if (data.error) {
+              errorMessage = data.error;
+            }
+          } else if (error.message) {
+            errorMessage = error.message;
+          }
+
           Swal.fire({
             title: "Edit Failed",
-            text: error.response?.data?.error || "Something went wrong.",
+            text: errorMessage,
             icon: "error",
             confirmButtonColor: "#d33",
           });
@@ -201,8 +233,10 @@ const EditBookingModal = ({ bookingData, closeModal }) => {
             onClick={handleSubmit}
             disabled={isConfirmDisabled || isUpdating}
             className={`px-6 py-2 ${
-              isConfirmDisabled || isUpdating ? "bg-gray-400" : "bg-green-500"
-            } text-white rounded-lg text-sm hover:bg-green-600`}
+              isConfirmDisabled || isUpdating
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-green-500 hover:bg-green-600"
+            } text-white rounded-lg text-sm `}
           >
             {isUpdating ? (
               <>
@@ -222,6 +256,7 @@ const EditBookingModal = ({ bookingData, closeModal }) => {
 EditBookingModal.propTypes = {
   bookingData: PropTypes.isRequired,
   closeModal: PropTypes.isRequired,
+  onBookingUpdated: PropTypes.func,
 };
 
 export default EditBookingModal;

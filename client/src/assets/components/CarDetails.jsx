@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useContext } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import api from "../../utils/api";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
@@ -10,6 +10,7 @@ import { AuthContext } from "../Auth/AuthContext";
 
 const CarDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [car, setCar] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const swiperRef = useRef(null);
@@ -30,7 +31,7 @@ const CarDetails = () => {
       }
     };
     fetchCar();
-  }, [isModalOpen]);
+  }, [id]);
 
   const handleImageClick = (index) => {
     setSelectedImageIndex(index);
@@ -43,7 +44,20 @@ const CarDetails = () => {
     if (currentUser) {
       setIsModalOpen(true);
     } else {
-      Swal.fire("Error", "Login to Book.", "error");
+      Swal.fire({
+        title: "Login Required",
+        text: "You need to be logged in to book a car. Would you like to go to the login page?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#10B981",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, Login",
+        cancelButtonText: "Cancel",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate("/login");
+        }
+      });
     }
   };
 
@@ -143,15 +157,12 @@ const CarDetails = () => {
               <strong>Life-time booking count:</strong> {car.bookingCount}
             </p>
             <p className="text-gray-600 mb-4">
-              <strong>Rating:</strong>{" "}
+              <strong>Average Rating:</strong>{" "}
               <span className="text-yellow-500">
                 {car.rating > 0
                   ? `${"★".repeat(Math.round(car.rating))} (${car.rating})`
                   : "No ratings yet"}
               </span>
-            </p>
-            <p className="text-gray-600 mb-4">
-              <strong>Review Count:</strong> {car.reviewCount}
             </p>
             <p className="text-gray-600 mb-4">
               <strong>Owner:</strong>{" "}
@@ -164,7 +175,7 @@ const CarDetails = () => {
                 className="bg-bluePrimary px-2 rounded"
                 onClick={handleShowReviews}
               >
-                See Reviews
+                See Reviews ({car.reviewCount})
               </button>
             </p>
             <button

@@ -16,10 +16,11 @@ const BookingModal = ({ car, closeModal }) => {
   useEffect(() => {
     const fetchExistingBookings = async () => {
       try {
-        const response = await api.get(`/bookings/car/${car._id}`);
-        setExistingBookings(response.data.data);
+        const response = await api.get(`/bookings/car/${car._id}/public`);
+        setExistingBookings(response.data.data || []);
       } catch (error) {
         console.error("Error fetching existing bookings", error);
+        setExistingBookings([]);
       }
     };
 
@@ -84,9 +85,33 @@ const BookingModal = ({ car, closeModal }) => {
             closeModal();
           }
         } catch (error) {
+          console.error("Booking error:", error);
+          let errorMessage = "Something went wrong. Please try again.";
+
+          if (error.response) {
+            const { status, data } = error.response;
+
+            if (status === 401) {
+              errorMessage = "You need to be logged in to make a booking.";
+            } else if (status === 404) {
+              errorMessage = data.error || "Car not found.";
+            } else if (status === 409) {
+              errorMessage =
+                data.error || "Car is not available for the selected dates.";
+            } else if (status === 400) {
+              errorMessage =
+                data.error ||
+                "Invalid booking details. Please check your dates.";
+            } else if (data.error) {
+              errorMessage = data.error;
+            }
+          } else if (error.message) {
+            errorMessage = error.message;
+          }
+
           Swal.fire({
             title: "Booking Failed",
-            text: error.response?.data?.message || "Something went wrong.",
+            text: errorMessage,
             icon: "error",
             confirmButtonColor: "#d33",
           });
@@ -100,10 +125,37 @@ const BookingModal = ({ car, closeModal }) => {
   const isConfirmDisabled = startDate.getTime() === endDate.getTime();
 
   const isDateBooked = (date) => {
-    return existingBookings.some((booking) => {
+    // Only confirmed bookings should block dates
+    const confirmedBookings = existingBookings.filter(
+      (booking) => booking.status === "Confirmed",
+    );
+
+    // Create a date at the start of the selected day in local timezone
+    const checkDate = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+    );
+
+    return confirmedBookings.some((booking) => {
+      // Parse booking dates (they come from server as ISO strings)
       const bookedStartDate = new Date(booking.startDate);
       const bookedEndDate = new Date(booking.endDate);
-      return date >= bookedStartDate && date <= bookedEndDate;
+
+      // Create dates at the start of the booking days
+      const startDay = new Date(
+        bookedStartDate.getFullYear(),
+        bookedStartDate.getMonth(),
+        bookedStartDate.getDate(),
+      );
+      const endDay = new Date(
+        bookedEndDate.getFullYear(),
+        bookedEndDate.getMonth(),
+        bookedEndDate.getDate(),
+      );
+
+      // Check if the selected date falls within the booking range
+      return checkDate >= startDay && checkDate <= endDay;
     });
   };
 
@@ -136,7 +188,13 @@ const BookingModal = ({ car, closeModal }) => {
               <h3 className="text-sm font-semibold mb-2">Existing Bookings:</h3>
               {existingBookings.map((booking, index) => (
                 <p key={index} className="text-sm text-gray-600">
-                  The car is already booked from{" "}
+                  The car is{" "}
+                  <span
+                    className={`font-medium ${booking.status === "Confirmed" ? "text-red-600" : "text-yellow-600"}`}
+                  >
+                    {booking.status.toLowerCase()}
+                  </span>{" "}
+                  from{" "}
                   <span className="font-medium">
                     {new Date(booking.startDate).toLocaleDateString()}
                   </span>{" "}
@@ -144,6 +202,9 @@ const BookingModal = ({ car, closeModal }) => {
                   <span className="font-medium">
                     {new Date(booking.endDate).toLocaleDateString()}
                   </span>
+                  {booking.status === "Confirmed"
+                    ? " (dates blocked)"
+                    : " (may become available)"}
                   .
                 </p>
               ))}
@@ -209,8 +270,10 @@ const BookingModal = ({ car, closeModal }) => {
             onClick={handleSubmit}
             disabled={isConfirmDisabled || isBooking}
             className={`px-6 py-2 ${
-              isConfirmDisabled || isBooking ? "bg-gray-400" : "bg-green-500"
-            } text-white rounded-lg text-sm hover:bg-green-600`}
+              isConfirmDisabled || isBooking
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-green-500 hover:bg-green-600"
+            } text-white rounded-lg text-sm `}
           >
             {isBooking ? (
               <>
