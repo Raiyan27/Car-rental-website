@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect } from "react";
 import { onAuthStateChanged, getAuth } from "firebase/auth";
-import axios from "axios";
+import api from "../../utils/api";
 
 const AuthContext = createContext();
 
@@ -15,18 +15,15 @@ export const AuthProvider = ({ children }) => {
       setCurrentUser(user);
 
       if (user?.email) {
-        const currentUser = { email: user.email };
-        axios
-          .post("https://gari-chai-server.vercel.app/jwt", currentUser, {
-            withCredentials: true,
-          })
-          .catch((err) => console.error(err));
+        const currentUser = {
+          email: user.email,
+          name: user.displayName,
+          photoURL: user.photoURL,
+          uid: user.uid,
+        };
+        api.post("/auth/login", currentUser).catch((err) => console.error(err));
       } else {
-        axios.post(
-          "https://gari-chai-server.vercel.app/logout",
-          {},
-          { withCredentials: true }
-        );
+        api.post("/auth/logout", {}).catch((err) => console.error(err));
       }
       setLoading(false);
     });

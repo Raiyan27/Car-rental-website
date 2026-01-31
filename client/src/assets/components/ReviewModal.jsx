@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import Swal from "sweetalert2";
 import { FaTimes } from "react-icons/fa";
-import axios from "axios";
+import api from "../../utils/api";
 import { AuthContext } from "../Auth/AuthContext";
 
 const ReviewModal = ({ bookingId, closeModal }) => {
@@ -16,12 +16,10 @@ const ReviewModal = ({ bookingId, closeModal }) => {
     const fetchCarDetails = async () => {
       try {
         const carId = bookingId.carId;
-        const response = await axios.get(
-          `https://gari-chai-server.vercel.app/car/${carId}`
-        );
+        const response = await api.get(`/cars/${carId}`);
 
-        if (response.data) {
-          setCarInfo(response.data);
+        if (response.data.success) {
+          setCarInfo(response.data.data);
         } else {
           Swal.fire("Error", "Car details not found", "error");
         }
@@ -50,25 +48,32 @@ const ReviewModal = ({ bookingId, closeModal }) => {
       return;
     }
 
-    try {
-      const response = await axios.post(
-        "https://gari-chai-server.vercel.app/add-review",
-        {
-          carId: bookingId.carId,
-          model: carInfo.model || "Model",
-          owner: carInfo.user.name || "Owner",
-          rating,
-          comment: reviewText,
-          reviewer: reviewerName || "Reviewer",
-          reviewerPhoto: photo || "https://placehold.co/400",
-        }
+    if (reviewText.trim().length < 10) {
+      Swal.fire(
+        "Error",
+        "Review must be at least 10 characters long.",
+        "error",
       );
+      return;
+    }
 
-      if (response.data?.message === "Review added successfully") {
+    try {
+      const response = await api.post("/reviews", {
+        car: bookingId.carId,
+        booking: bookingId._id,
+        rating,
+        comment: reviewText,
+      });
+
+      if (response.data.success) {
         Swal.fire("Success", "Your review has been submitted!", "success");
         closeModal();
       } else {
-        Swal.fire("Error", "Failed to submit the review", "error");
+        Swal.fire(
+          "Error",
+          response.data.error || "Failed to submit the review",
+          "error",
+        );
       }
     } catch (error) {
       console.error("Error submitting review:", error);
@@ -129,7 +134,7 @@ const ReviewModal = ({ bookingId, closeModal }) => {
                 rows="4"
                 value={reviewText}
                 onChange={handleReviewChange}
-                placeholder="Write your review here..."
+                placeholder="Write your review here (minimum 10 characters)..."
               ></textarea>
             </div>
 

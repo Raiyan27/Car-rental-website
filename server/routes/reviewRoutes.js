@@ -16,7 +16,7 @@ const router = express.Router();
 router.get("/car/:carId", getCarReviews);
 
 // Protected routes
-router.post("/", validate(schemas.createReview), createReview);
+router.post("/", verifyToken, validate(schemas.createReview), createReview);
 router.get("/user/reviews", verifyToken, getUserReviews);
 router.patch("/:id", verifyToken, updateReview);
 router.delete("/:id", verifyToken, deleteReview);

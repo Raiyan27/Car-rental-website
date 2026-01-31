@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { FaEdit, FaTrash, FaStar } from "react-icons/fa";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
-import axios from "axios";
+import api from "../../utils/api";
 import EditBookingModal from "./EditBookingModal";
 import { AuthContext } from "../Auth/AuthContext";
 import ReviewModal from "./ReviewModal";
@@ -32,16 +32,12 @@ const MyBookings = () => {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const response = await axios.get(
-          "https://gari-chai-server.vercel.app/my-bookings",
-          {
-            params: { email },
-            withCredentials: true,
-          }
-        );
-        setBookings(response.data);
+        const response = await api.get("/bookings/user", {
+          params: { email },
+        });
+        setBookings(response.data.data);
         setLoading(false);
-        const carIds = response.data.map((booking) => booking.carId);
+        const carIds = response.data.data.map((booking) => booking.carId);
         fetchCarDetails(carIds);
       } catch (error) {
         setLoading(false);
@@ -50,18 +46,16 @@ const MyBookings = () => {
     };
 
     if (email) fetchBookings();
-  }, [bookings]);
+  }, [email]);
 
   const fetchCarDetails = async (carIds) => {
     try {
-      const carDataPromises = carIds.map((carId) =>
-        axios.get(`https://gari-chai-server.vercel.app/car/${carId}`)
-      );
+      const carDataPromises = carIds.map((carId) => api.get(`/cars/${carId}`));
       const carDataResponses = await Promise.all(carDataPromises);
       const carDetails = {};
       carDataResponses.forEach((response) => {
-        if (response.data && response.data._id) {
-          carDetails[response.data._id] = response.data;
+        if (response.data.data && response.data.data._id) {
+          carDetails[response.data.data._id] = response.data.data;
         }
       });
       setCars(carDetails);
@@ -104,15 +98,14 @@ const MyBookings = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const response = await axios.patch(
-            `https://gari-chai-server.vercel.app/booking-confirmation/${id}`,
-            { action: "cancel" }
-          );
-          if (response.status === 200) {
+          const response = await api.patch(`/bookings/${id}/status`, {
+            action: "cancel",
+          });
+          if (response.data.success) {
             Swal.fire(
               "Cancelled!",
               "The booking has been cancelled.",
-              "success"
+              "success",
             );
           }
         } catch (error) {
@@ -136,12 +129,10 @@ const MyBookings = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const response = await axios.delete(
-            `https://gari-chai-server.vercel.app/booking-delete/${id}`
-          );
-          if (response.status === 200) {
+          const response = await api.delete(`/bookings/${id}`);
+          if (response.data.success) {
             setBookings((prevBookings) =>
-              prevBookings.filter((booking) => booking._id !== id)
+              prevBookings.filter((booking) => booking._id !== id),
             );
             Swal.fire("Deleted!", "The booking has been deleted.", "success");
           }
@@ -224,7 +215,7 @@ const MyBookings = () => {
                 <td className="px-6 py-4">
                   <img
                     src={
-                      cars[booking.carId]?.images[0] ||
+                      cars[booking.carId]?.images?.[0]?.url ||
                       "https://placehold.co/400"
                     }
                     alt={cars[booking.carId]?.model}
@@ -247,10 +238,10 @@ const MyBookings = () => {
                     booking.status === "Confirmed"
                       ? "text-green-500"
                       : booking.status === "Pending"
-                      ? "text-yellow-600"
-                      : booking.status === "Canceled"
-                      ? "text-red-500"
-                      : ""
+                        ? "text-yellow-600"
+                        : booking.status === "Canceled"
+                          ? "text-red-500"
+                          : ""
                   }`}
                 >
                   {booking.status}

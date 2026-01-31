@@ -36,7 +36,16 @@ const carSchema = new Schema({
     trim: true,
   },
   images: {
-    type: [String],
+    type: [
+      {
+        public_id: { type: String, required: true },
+        url: { type: String, required: true },
+        width: { type: Number },
+        height: { type: Number },
+        format: { type: String },
+        bytes: { type: Number },
+      },
+    ],
     required: true,
     validate: {
       validator: function (v) {

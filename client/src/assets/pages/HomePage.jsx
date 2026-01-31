@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { FaCar, FaDollarSign, FaRegClock, FaHeadset } from "react-icons/fa";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
-import axios from "axios";
+import api from "../../utils/api";
 import "animate.css";
 import { Helmet } from "react-helmet";
 import { Autoplay } from "swiper/modules";
@@ -14,10 +14,10 @@ const HomePage = () => {
   const [loading, setLoading] = useState([]);
 
   useEffect(() => {
-    axios
-      .get("https://gari-chai-server.vercel.app/cars")
+    api
+      .get("/cars")
       .then((response) => {
-        const sortedCars = response.data
+        const sortedCars = response.data.data
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
           .slice(0, 6);
         setCars(sortedCars);
@@ -30,10 +30,8 @@ const HomePage = () => {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await axios.get(
-          `https://gari-chai-server.vercel.app/reviews`
-        );
-        setReviews(response.data.slice(0, 8));
+        const response = await api.get(`/reviews`);
+        setReviews(response.data.data.slice(0, 8));
         setLoading(false);
       } catch (error) {
         console.error("Error fetching reviews:", error);
@@ -47,7 +45,30 @@ const HomePage = () => {
     <div>
       <Helmet>
         <meta charSet="utf-8" />
-        <title>Gari Chai - Home</title>
+        <title>Gari Chai - Premium Car Rental Service</title>
+        <meta
+          name="description"
+          content="Rent premium cars at affordable prices. Wide variety of vehicles available for daily rental. Easy booking process with 24/7 customer support."
+        />
+        <meta
+          name="keywords"
+          content="car rental, vehicle rental, rent a car, car booking, affordable cars"
+        />
+        <meta
+          property="og:title"
+          content="Gari Chai - Premium Car Rental Service"
+        />
+        <meta
+          property="og:description"
+          content="Rent premium cars at affordable prices. Wide variety of vehicles available for daily rental."
+        />
+        <meta
+          property="og:image"
+          content="https://i.ibb.co.com/LxrDb9y/2025-G-SUV-HERO-DR.webp"
+        />
+        <meta property="og:url" content="https://gari-chai.com" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <link rel="canonical" href="https://gari-chai.com" />
       </Helmet>
       <section
         className="relative h-screen bg-cover bg-center  flex items-center justify-center text-gray-900"
@@ -112,9 +133,10 @@ const HomePage = () => {
                 >
                   <Link to={`/car/${car._id}`} className="block">
                     <img
-                      src={car.images[0]}
+                      src={car.images?.[0]?.url || "https://placehold.co/400"}
                       alt={car.model}
                       className="w-full h-48 object-cover"
+                      loading="lazy"
                     />
                     <div className="p-4">
                       <h3 className="text-xl font-bold">{car.model}</h3>

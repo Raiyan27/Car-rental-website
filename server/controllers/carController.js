@@ -1,6 +1,7 @@
 import Car from "../models/Car.js";
 import { ApiResponse } from "../utils/response.js";
 import { asyncHandler } from "../middleware/errorHandler.js";
+import { uploadImage, deleteImage } from "../utils/cloudinary.js";
 
 /**
  * Get all cars (public endpoint)
@@ -37,7 +38,9 @@ export const getCars = asyncHandler(async (req, res) => {
   };
 
   // Set cache headers for public data
-  res.set("Cache-Control", "public, max-age=300, stale-while-revalidate=600");
+  res.set("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.set("Pragma", "no-cache");
+  res.set("Expires", "0");
 
   ApiResponse.success(
     res,
@@ -53,7 +56,7 @@ export const getCars = asyncHandler(async (req, res) => {
  * Supports pagination and search
  */
 export const getUserCars = asyncHandler(async (req, res) => {
-  const { email, page = 1, limit = 5, searchQuery = "" } = req.query;
+  const { email, page = 1, limit = 10, searchQuery = "" } = req.query;
   const skip = (page - 1) * limit;
 
   // Verify user owns the data
@@ -110,7 +113,9 @@ export const getCarById = asyncHandler(async (req, res) => {
   }
 
   // Set cache headers
-  res.set("Cache-Control", "public, max-age=300, stale-while-revalidate=600");
+  res.set("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.set("Pragma", "no-cache");
+  res.set("Expires", "0");
 
   ApiResponse.success(res, car, "Car retrieved successfully");
 });
@@ -119,14 +124,43 @@ export const getCarById = asyncHandler(async (req, res) => {
  * Create new car (protected)
  */
 export const createCar = asyncHandler(async (req, res) => {
-  const carData = {
-    ...req.body,
-    user: req.user, // From JWT token
+  const { images, ...carData } = req.body;
+
+  // Validate required fields
+  if (
+    !carData.model ||
+    !carData.price ||
+    !carData.location ||
+    !carData.description ||
+    !images ||
+    images.length === 0
+  ) {
+    return ApiResponse.badRequest(res, "Missing required fields or images");
+  }
+
+  // Upload images to Cloudinary
+  const uploadedImages = [];
+  try {
+    for (const base64Image of images) {
+      const uploadedImage = await uploadImage(base64Image, "gari-chai/cars");
+      uploadedImages.push(uploadedImage);
+    }
+  } catch (error) {
+    // Clean up uploaded images if any failed
+    for (const img of uploadedImages) {
+      await deleteImage(img.public_id);
+    }
+    return ApiResponse.error(res, "Failed to upload images", 500);
+  }
+
+  const car = new Car({
+    ...carData,
+    images: uploadedImages,
+    user: req.user,
     createdAt: new Date(),
     updatedAt: new Date(),
-  };
+  });
 
-  const car = new Car(carData);
   await car.save();
 
   ApiResponse.created(res, car, "Car added successfully");
@@ -137,6 +171,7 @@ export const createCar = asyncHandler(async (req, res) => {
  */
 export const updateCar = asyncHandler(async (req, res) => {
   const { id } = req.params;
+  const { images, ...updateData } = req.body;
 
   const car = await Car.findById(id);
 
@@ -149,15 +184,37 @@ export const updateCar = asyncHandler(async (req, res) => {
     return ApiResponse.forbidden(res, "You can only update your own cars");
   }
 
-  const updateData = {
-    ...req.body,
-    updatedAt: new Date(),
-  };
+  // Handle image updates if provided
+  if (images && images.length > 0) {
+    // Delete old images
+    for (const img of car.images) {
+      await deleteImage(img.public_id);
+    }
 
-  const updatedCar = await Car.findByIdAndUpdate(id, updateData, {
-    new: true,
-    runValidators: true,
-  });
+    // Upload new images
+    const uploadedImages = [];
+    try {
+      for (const base64Image of images) {
+        const uploadedImage = await uploadImage(base64Image, "gari-chai/cars");
+        uploadedImages.push(uploadedImage);
+      }
+      updateData.images = uploadedImages;
+    } catch (error) {
+      return ApiResponse.error(res, "Failed to upload new images", 500);
+    }
+  }
+
+  const updatedCar = await Car.findByIdAndUpdate(
+    id,
+    {
+      ...updateData,
+      updatedAt: new Date(),
+    },
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
 
   ApiResponse.success(res, updatedCar, "Car updated successfully");
 });
@@ -177,6 +234,11 @@ export const deleteCar = asyncHandler(async (req, res) => {
   // Check ownership
   if (car.user.email !== req.user.email) {
     return ApiResponse.forbidden(res, "You can only delete your own cars");
+  }
+
+  // Delete images from Cloudinary
+  for (const img of car.images) {
+    await deleteImage(img.public_id);
   }
 
   await Car.findByIdAndDelete(id);

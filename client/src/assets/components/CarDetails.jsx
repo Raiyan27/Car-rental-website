@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useContext } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import api from "../../utils/api";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import Swal from "sweetalert2";
@@ -20,10 +20,8 @@ const CarDetails = () => {
   useEffect(() => {
     const fetchCar = async () => {
       try {
-        const response = await axios.get(
-          `https://gari-chai-server.vercel.app/car/${id}`
-        );
-        setCar(response.data);
+        const response = await api.get(`/cars/${id}`);
+        setCar(response.data.data);
       } catch (error) {
         console.error("Error fetching car details:", error);
       }
@@ -75,25 +73,39 @@ const CarDetails = () => {
               }
               ref={swiperRef}
             >
-              {car.images.map((image, index) => (
-                <SwiperSlide key={index}>
+              {car.images && car.images.length > 0 ? (
+                car.images.map((image, index) => (
+                  <SwiperSlide key={index}>
+                    <div className="flex items-center justify-center">
+                      <img
+                        src={image.url}
+                        alt={`Car Image ${index + 1}`}
+                        className="rounded-lg shadow-lg w-full max-w-[650px]"
+                        loading="lazy"
+                      />
+                    </div>
+                  </SwiperSlide>
+                ))
+              ) : (
+                <SwiperSlide>
                   <div className="flex items-center justify-center">
                     <img
-                      src={image}
-                      alt={`Car Image ${index + 1}`}
+                      src="https://placehold.co/400"
+                      alt="No image available"
                       className="rounded-lg shadow-lg w-full max-w-[650px]"
+                      loading="lazy"
                     />
                   </div>
                 </SwiperSlide>
-              ))}
+              )}
             </Swiper>
 
-            {car.images.length > 1 && (
+            {car.images && car.images.length > 1 && (
               <div className="mt-4 flex space-x-4 mx-2 md:mx-0 items-center justify-center">
                 {car.images.map((image, index) => (
                   <img
                     key={index}
-                    src={image}
+                    src={image.url}
                     alt={`Thumbnail ${index + 1}`}
                     className={`w-20 h-20 object-cover rounded-lg cursor-pointer border-2   ${
                       selectedImageIndex === index
@@ -128,7 +140,20 @@ const CarDetails = () => {
               <strong>Life-time booking count:</strong> {car.bookingCount}
             </p>
             <p className="text-gray-600 mb-4">
-              <strong>Owner:</strong> {car.user.name || "Owner"}
+              <strong>Rating:</strong>{" "}
+              <span className="text-yellow-500">
+                {car.rating > 0
+                  ? `${"★".repeat(Math.round(car.rating))} (${car.rating})`
+                  : "No ratings yet"}
+              </span>
+            </p>
+            <p className="text-gray-600 mb-4">
+              <strong>Review Count:</strong> {car.reviewCount}
+            </p>
+            <p className="text-gray-600 mb-4">
+              <strong>Owner:</strong>{" "}
+              {car.user?.name ||
+                (typeof car.user === "string" ? car.user : "Owner")}
             </p>
             <p className="text-gray-600 mb-4">
               <strong>Reviews:</strong>{" "}

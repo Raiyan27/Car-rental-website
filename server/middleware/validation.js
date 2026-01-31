@@ -8,22 +8,36 @@ import Joi from "joi";
  */
 export const validate = (schema, property = "body") => {
   return (req, res, next) => {
+    console.log(`Validating ${property}:`, req[property]);
     const { error, value } = schema.validate(req[property], {
       abortEarly: false,
       stripUnknown: true,
+      allowUnknown: true,
     });
 
     if (error) {
-      const errors = error.details.map((detail) => ({
-        field: detail.path.join("."),
-        message: detail.message,
-      }));
+      // Filter out searchQuery empty string errors
+      const filteredErrors = error.details.filter(
+        (detail) =>
+          !(
+            detail.path.includes("searchQuery") &&
+            detail.type === "string.empty"
+          ),
+      );
 
-      return res.status(400).json({
-        success: false,
-        error: "Validation failed",
-        details: errors,
-      });
+      if (filteredErrors.length > 0) {
+        console.log("Validation errors:", filteredErrors);
+        const errors = filteredErrors.map((detail) => ({
+          field: detail.path.join("."),
+          message: detail.message,
+        }));
+
+        return res.status(400).json({
+          success: false,
+          error: "Validation failed",
+          details: errors,
+        });
+      }
     }
 
     req[property] = value;
@@ -42,11 +56,7 @@ export const schemas = {
     features: Joi.array().items(Joi.string()).default([]),
     description: Joi.string().required().min(10).max(1000),
     location: Joi.string().required().trim(),
-    images: Joi.array().items(Joi.string().uri()).min(1).required(),
-    user: Joi.object({
-      name: Joi.string().required(),
-      email: Joi.string().email().required(),
-    }).required(),
+    images: Joi.array().items(Joi.string()).min(1).required(),
   }),
 
   updateCar: Joi.object({
@@ -57,7 +67,7 @@ export const schemas = {
     features: Joi.array().items(Joi.string()),
     description: Joi.string().min(10).max(1000),
     location: Joi.string().trim(),
-    images: Joi.array().items(Joi.string().uri()).min(1),
+    images: Joi.array().items(Joi.string()).min(1),
   }).min(1), // At least one field must be provided
 
   // Booking validation schemas
@@ -83,16 +93,10 @@ export const schemas = {
 
   // Review validation schemas
   createReview: Joi.object({
-    carId: Joi.string().required(),
+    car: Joi.string().required(),
+    booking: Joi.string().required(),
     rating: Joi.number().integer().min(1).max(5).required(),
     comment: Joi.string().required().min(10).max(1000),
-    model: Joi.string().required(),
-    owner: Joi.object({
-      name: Joi.string().required(),
-      email: Joi.string().email().required(),
-    }).required(),
-    reviewer: Joi.string().required(),
-    reviewerPhoto: Joi.string().uri().optional(),
   }),
 
   // Query parameter validation
@@ -103,7 +107,7 @@ export const schemas = {
 
   carQuery: Joi.object({
     email: Joi.string().email().required(),
-    searchQuery: Joi.string().optional(),
+    searchQuery: Joi.string().empty("").optional(),
     page: Joi.number().integer().min(1).default(1),
     limit: Joi.number().integer().min(1).max(50).default(5),
   }),

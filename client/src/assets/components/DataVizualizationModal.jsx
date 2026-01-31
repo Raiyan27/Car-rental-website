@@ -1,6 +1,7 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import PropTypes from "prop-types";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -53,7 +54,7 @@ const DataVisualizationModal = ({ closeModal, bookings, cars }) => {
             const value = context.raw || 0;
             const total = context.dataset.data.reduce(
               (sum, val) => sum + val,
-              0
+              0,
             );
             const percentage = ((value / total) * 100).toFixed(2);
             return `${label}: $${value} (${percentage}%)`;
@@ -89,6 +90,12 @@ const DataVisualizationModal = ({ closeModal, bookings, cars }) => {
       </div>
     </div>
   );
+};
+
+DataVisualizationModal.propTypes = {
+  closeModal: PropTypes.func.isRequired,
+  bookings: PropTypes.arrayOf(PropTypes.object).isRequired,
+  cars: PropTypes.object.isRequired,
 };
 
 export default DataVisualizationModal;

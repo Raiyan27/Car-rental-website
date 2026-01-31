@@ -1,5 +1,6 @@
 import Review from "../models/Review.js";
 import Car from "../models/Car.js";
+import Booking from "../models/Booking.js";
 import { ApiResponse } from "../utils/response.js";
 import { asyncHandler } from "../middleware/errorHandler.js";
 
@@ -7,27 +8,63 @@ import { asyncHandler } from "../middleware/errorHandler.js";
  * Create new review
  */
 export const createReview = asyncHandler(async (req, res) => {
-  const { carId, rating, comment, model, owner, reviewer, reviewerPhoto } =
-    req.body;
+  const { car, booking, rating, comment } = req.body;
 
-  // Check if car exists
-  const car = await Car.findById(carId);
-  if (!car) {
+  // Check if car exists and get car details
+  const carDoc = await Car.findById(car);
+  if (!carDoc) {
     return ApiResponse.notFound(res, "Car not found");
   }
 
+  // Check if booking exists and belongs to the user
+  const bookingDoc = await Booking.findById(booking);
+  if (!bookingDoc) {
+    return ApiResponse.notFound(res, "Booking not found");
+  }
+
+  if (bookingDoc.clientEmail !== req.user.email) {
+    return ApiResponse.forbidden(res, "You can only review your own bookings");
+  }
+
+  // Check if booking is confirmed or completed (allow reviews for active/completed bookings)
+  if (!["Confirmed", "Completed"].includes(bookingDoc.status)) {
+    return ApiResponse.badRequest(
+      res,
+      `You can only review confirmed or completed bookings. Current status: ${bookingDoc.status}`,
+    );
+  }
+
   // Check if user already reviewed this car
-  const existingReview = await Review.findOne({ carId, reviewer });
+  const existingReview = await Review.findOne({
+    carId: car,
+    reviewer: req.user.email,
+  });
   if (existingReview) {
     return ApiResponse.conflict(res, "You have already reviewed this car");
   }
 
+  // Extract owner information from car data
+  let ownerName = "Unknown";
+  let ownerEmail = "";
+
+  if (typeof carDoc.user === "object" && carDoc.user !== null) {
+    ownerName = carDoc.user.name || "Unknown";
+    ownerEmail = carDoc.user.email || "";
+  } else if (typeof carDoc.user === "string") {
+    // Assume it's an email
+    ownerEmail = carDoc.user;
+    ownerName = "Unknown";
+  }
+
   const reviewData = {
-    carId,
-    model,
-    owner,
-    reviewer,
-    reviewerPhoto,
+    carId: car,
+    model: carDoc.model,
+    owner: {
+      name: ownerName,
+      email: ownerEmail,
+    },
+    reviewer: req.user.email,
+    reviewerPhoto: req.user.photoURL || null,
     rating: parseInt(rating),
     comment,
     createdAt: new Date(),
@@ -37,11 +74,11 @@ export const createReview = asyncHandler(async (req, res) => {
   await review.save();
 
   // Update car's rating and review count
-  const allReviews = await Review.find({ carId });
+  const allReviews = await Review.find({ carId: car });
   const totalRating = allReviews.reduce((sum, r) => sum + r.rating, 0);
   const averageRating = totalRating / allReviews.length;
 
-  await Car.findByIdAndUpdate(carId, {
+  await Car.findByIdAndUpdate(car, {
     rating: Math.round(averageRating * 10) / 10, // Round to 1 decimal
     reviewCount: allReviews.length,
   });
@@ -54,6 +91,10 @@ export const createReview = asyncHandler(async (req, res) => {
  */
 export const getAllReviews = asyncHandler(async (req, res) => {
   const reviews = await Review.find({}).sort({ createdAt: -1 }).lean();
+
+  res.set("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.set("Pragma", "no-cache");
+  res.set("Expires", "0");
 
   ApiResponse.success(res, reviews, "Reviews retrieved successfully");
 });
@@ -71,6 +112,10 @@ export const getCarReviews = asyncHandler(async (req, res) => {
   }
 
   const reviews = await Review.find({ carId }).sort({ createdAt: -1 }).lean();
+
+  res.set("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.set("Pragma", "no-cache");
+  res.set("Expires", "0");
 
   ApiResponse.success(res, reviews, "Car reviews retrieved successfully");
 });

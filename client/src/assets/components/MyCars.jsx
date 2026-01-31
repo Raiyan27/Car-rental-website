@@ -9,7 +9,7 @@ import {
 } from "react-icons/fa";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
-import axios from "axios";
+import api from "../../utils/api";
 import EditModal from "./EditModal";
 import { AuthContext } from "../Auth/AuthContext";
 import BookingInfoModal from "./BookingInfoModal";
@@ -47,16 +47,12 @@ const MyCars = () => {
   useEffect(() => {
     const fetchCars = async () => {
       try {
-        const response = await axios.get(
-          "https://gari-chai-server.vercel.app/car",
-          {
-            params: { email, page: currentPage, limit: 5, searchQuery },
-            withCredentials: true,
-          }
-        );
+        const response = await api.get("/cars/user/cars", {
+          params: { email, page: currentPage, limit: 5, searchQuery },
+        });
         setLoading(false);
-        setCars(response.data.cars);
-        setTotalPages(response.data.totalPages);
+        setCars(response.data.data);
+        setTotalPages(response.data.pagination.pages);
       } catch (error) {
         setLoading(false);
         console.error("Error fetching cars:", error);
@@ -115,9 +111,7 @@ const MyCars = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.delete(
-            `https://gari-chai-server.vercel.app/delete-car/${id}`
-          );
+          await api.delete(`/cars/${id}`);
           setCars((prevCars) => prevCars.filter((car) => car._id !== id));
           Swal.fire("Deleted!", "The car has been deleted.", "success");
         } catch (error) {
@@ -134,14 +128,8 @@ const MyCars = () => {
 
   const handleBookingInfo = async (carId) => {
     try {
-      const response = await axios.get(
-        "https://gari-chai-server.vercel.app/owner-bookings",
-        {
-          params: { carId },
-          withCredentials: true,
-        }
-      );
-      setBookingInfo(response.data);
+      const response = await api.get(`/bookings/car/${carId}`);
+      setBookingInfo(response.data.data);
       setIsBookingModalOpen(true);
     } catch (error) {
       console.error("Error fetching booking info:", error);
@@ -232,9 +220,10 @@ const MyCars = () => {
               <tr key={car.id} className="hover:bg-gray-100">
                 <td className="px-6 py-4">
                   <img
-                    src={car.images[0]}
+                    src={car.images?.[0]?.url || "https://placehold.co/400"}
                     alt={car.model}
                     className="w-16 h-16 object-cover rounded"
+                    loading="lazy"
                   />
                 </td>
                 <td className="px-6 py-4">{car.model}</td>

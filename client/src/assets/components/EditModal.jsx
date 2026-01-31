@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { toast } from "react-toastify";
-import axios from "axios";
+import api from "../../utils/api";
 
 const EditModal = ({ carData, isOpen, onClose }) => {
   const [formData, setFormData] = useState({
@@ -29,7 +29,9 @@ const EditModal = ({ carData, isOpen, onClose }) => {
       });
       setImages(carData.images || []);
       setImagePreviews(
-        carData.images ? carData.images.map((img) => ({ preview: img })) : []
+        carData.images
+          ? carData.images.map((img) => ({ preview: img.url }))
+          : [],
       );
     }
   }, [isOpen, carData]);
@@ -86,25 +88,22 @@ const EditModal = ({ carData, isOpen, onClose }) => {
     const payload = {
       ...formData,
       price: parseFloat(formData.price),
+      features: formData.features
+        ? formData.features
+            .split(",")
+            .map((f) => f.trim())
+            .filter((f) => f)
+        : [],
       images,
     };
 
     try {
-      const response = await axios.patch(
-        `https://gari-chai-server.vercel.app/update-car/${carData._id}`,
-        payload,
-        { withCredentials: true },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await api.patch(`/cars/${carData._id}`, payload);
 
-      if (response.status === 200) {
+      if (response.data.success) {
         toast.success("Car updated successfully!");
 
-        onClose(response.data);
+        onClose(response.data.data);
       }
     } catch (error) {
       console.error("Error updating the car:", error);

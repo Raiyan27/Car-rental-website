@@ -67,7 +67,6 @@ export const getUserBookings = asyncHandler(async (req, res) => {
   }
 
   const bookings = await Booking.find({ clientEmail: email })
-    .populate("carId", "model images price location")
     .sort({ createdAt: -1 })
     .lean();
 

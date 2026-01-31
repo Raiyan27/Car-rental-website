@@ -1,8 +1,7 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
-import { AuthContext } from "../Auth/AuthContext";
-import axios from "axios";
+import api from "../../utils/api";
 import { toast } from "react-toastify";
 import { Helmet } from "react-helmet";
 
@@ -18,8 +17,6 @@ const AddCarPage = () => {
   });
   const [images, setImages] = useState([]);
   const navigate = useNavigate();
-  const { currentUser } = useContext(AuthContext);
-  const { email, displayName } = currentUser;
   const [imagePreviews, setImagePreviews] = useState([]);
 
   const handleChange = (e) => {
@@ -69,37 +66,74 @@ const AddCarPage = () => {
       return;
     }
 
-    const user = {
-      email: email,
-      name: displayName,
-    };
+    // Validate required fields
+    if (!formData.model.trim()) {
+      toast.error("Please enter a car model.");
+      return;
+    }
+    if (
+      !formData.price ||
+      isNaN(parseFloat(formData.price)) ||
+      parseFloat(formData.price) <= 0
+    ) {
+      toast.error("Please enter a valid price.");
+      return;
+    }
+    if (!formData.registration.trim()) {
+      toast.error("Please enter the vehicle registration number.");
+      return;
+    }
+    if (!formData.description.trim() || formData.description.length < 10) {
+      toast.error("Please enter a description (minimum 10 characters).");
+      return;
+    }
+    if (!formData.location.trim()) {
+      toast.error("Please enter a location.");
+      return;
+    }
+
+    const price = parseFloat(formData.price);
+    if (isNaN(price) || price <= 0) {
+      toast.error("Please enter a valid price greater than 0.");
+      return;
+    }
 
     const payload = {
       ...formData,
-      price: parseFloat(formData.price),
-      user,
+      price: price,
+      features: formData.features
+        ? formData.features
+            .split(",")
+            .map((f) => f.trim())
+            .filter((f) => f)
+        : [],
       images,
       bookingCount: 0,
     };
 
     try {
-      const response = await axios.post(
-        "https://gari-chai-server.vercel.app/add-car",
-        payload,
-        { withCredentials: true },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      console.log("Sending payload:", payload);
+      const response = await api.post("/cars", payload);
 
-      if (response.status === 201) {
+      if (response.data.success) {
         toast.success("Car added successfully!");
         navigate("/");
       }
     } catch (error) {
       console.error("Error submitting the form:", error);
+      if (error.response?.data?.error) {
+        if (error.response.data.details) {
+          // Show validation errors
+          const errorMessages = error.response.data.details
+            .map((detail) => detail.message)
+            .join(", ");
+          toast.error(`Validation failed: ${errorMessages}`);
+        } else {
+          toast.error(error.response.data.error);
+        }
+      } else {
+        toast.error("Failed to add car. Please try again.");
+      }
     }
   };
 

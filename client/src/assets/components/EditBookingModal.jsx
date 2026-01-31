@@ -1,10 +1,10 @@
 import { useState, useEffect, useContext } from "react";
 import ReactDatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import axios from "axios";
 import Swal from "sweetalert2";
 import { AuthContext } from "../Auth/AuthContext";
 import PropTypes from "prop-types";
+import api from "../../utils/api";
 
 const EditBookingModal = ({ bookingData, closeModal }) => {
   const [startDate, setStartDate] = useState(new Date(bookingData.startDate));
@@ -16,10 +16,10 @@ const EditBookingModal = ({ bookingData, closeModal }) => {
   useEffect(() => {
     const fetchCarDetails = async () => {
       try {
-        const response = await axios.get(
-          `https://gari-chai-server.vercel.app/car/${bookingData.carId}`
-        );
-        setCar(response.data);
+        const response = await api.get(`/cars/${bookingData.carId}`);
+        if (response.data.success) {
+          setCar(response.data.data);
+        }
       } catch (error) {
         console.error("Error fetching car details:", error);
       }
@@ -65,29 +65,35 @@ const EditBookingModal = ({ bookingData, closeModal }) => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const response = await axios.patch(
-            `https://gari-chai-server.vercel.app/update-booking/${bookingData._id}`,
-            {
-              startDate: startDate.toISOString(),
-              endDate: endDate.toISOString(),
-              totalPrice: totalPrice,
-            }
-          );
-
-          Swal.fire({
-            title: "Booking Edited!",
-            text: `Your booking for ${
-              car.model
-            } from ${startDate.toLocaleDateString()} to ${endDate.toLocaleDateString()} has been updated.`,
-            icon: "success",
-            confirmButtonColor: "#10B981",
+          const response = await api.patch(`/bookings/${bookingData._id}`, {
+            startDate: startDate.toISOString(),
+            endDate: endDate.toISOString(),
+            totalPrice: totalPrice,
           });
 
-          closeModal();
+          if (response.data.success) {
+            Swal.fire({
+              title: "Booking Edited!",
+              text: `Your booking for ${
+                car.model
+              } from ${startDate.toLocaleDateString()} to ${endDate.toLocaleDateString()} has been updated.`,
+              icon: "success",
+              confirmButtonColor: "#10B981",
+            });
+
+            closeModal();
+          } else {
+            Swal.fire({
+              title: "Edit Failed",
+              text: response.data.error || "Something went wrong.",
+              icon: "error",
+              confirmButtonColor: "#d33",
+            });
+          }
         } catch (error) {
           Swal.fire({
             title: "Edit Failed",
-            text: error.response?.data?.message || "Something went wrong.",
+            text: error.response?.data?.error || "Something went wrong.",
             icon: "error",
             confirmButtonColor: "#d33",
           });

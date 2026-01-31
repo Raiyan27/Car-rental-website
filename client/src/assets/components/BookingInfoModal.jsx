@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
-import axios from "axios";
 import Swal from "sweetalert2";
+import api from "../../utils/api";
 
 const BookingInfoModal = ({ isOpen, bookings, cars, onClose }) => {
   if (!isOpen) return null;
@@ -18,19 +18,26 @@ const BookingInfoModal = ({ isOpen, bookings, cars, onClose }) => {
 
   const handleAction = async (bookingId, action) => {
     try {
-      const response = await axios.patch(
-        `https://gari-chai-server.vercel.app/booking-confirmation/${bookingId}`,
-        { action }
-      );
+      const response = await api.patch(`/bookings/${bookingId}/status`, {
+        action,
+      });
 
-      Swal.fire(
-        "Success",
-        action === "confirm"
-          ? "Booking has been confirmed."
-          : "Booking has been canceled.",
-        "success"
-      );
-      onClose();
+      if (response.data.success) {
+        Swal.fire(
+          "Success",
+          action === "confirm"
+            ? "Booking has been confirmed."
+            : "Booking has been canceled.",
+          "success",
+        );
+        onClose();
+      } else {
+        Swal.fire(
+          "Error",
+          response.data.error || "Failed to update booking status.",
+          "error",
+        );
+      }
     } catch (error) {
       console.error("Error updating booking status:", error);
       Swal.fire("Error", "Failed to update booking status.", "error");
@@ -55,7 +62,7 @@ const BookingInfoModal = ({ isOpen, bookings, cars, onClose }) => {
               const car = cars.find((car) => car._id === booking.carId);
               const rentalDays = Math.ceil(
                 (new Date(booking.endDate) - new Date(booking.startDate)) /
-                  (1000 * 3600 * 24)
+                  (1000 * 3600 * 24),
               );
               const bookingPrice = car ? rentalDays * car.price : 0;
 
@@ -77,8 +84,8 @@ const BookingInfoModal = ({ isOpen, bookings, cars, onClose }) => {
                         booking.status === "Confirmed"
                           ? "text-green-500 font-semibold"
                           : booking.status === "Canceled"
-                          ? "text-red-500 font-semibold"
-                          : "text-yellow-500 font-semibold"
+                            ? "text-red-500 font-semibold"
+                            : "text-yellow-500 font-semibold"
                       }
                     >
                       {booking.status}

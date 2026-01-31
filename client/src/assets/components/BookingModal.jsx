@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import ReactDatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import axios from "axios";
+import api from "../../utils/api";
 import Swal from "sweetalert2";
 import { AuthContext } from "../Auth/AuthContext";
 
@@ -15,10 +15,8 @@ const BookingModal = ({ car, closeModal }) => {
   useEffect(() => {
     const fetchExistingBookings = async () => {
       try {
-        const response = await axios.get(
-          `https://gari-chai-server.vercel.app/car-bookings/${car._id}`
-        );
-        setExistingBookings(response.data);
+        const response = await api.get(`/bookings/car/${car._id}`);
+        setExistingBookings(response.data.data);
       } catch (error) {
         console.error("Error fetching existing bookings", error);
       }
@@ -63,29 +61,26 @@ const BookingModal = ({ car, closeModal }) => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const response = await axios.post(
-            "https://gari-chai-server.vercel.app/add-booking",
-            {
-              carId: car._id,
-              carModel: car.model,
-              carImage: car.images[0],
-              startDate: startDate.toISOString(),
-              endDate: endDate.toISOString(),
-              totalPrice,
-              email,
-            }
-          );
-
-          Swal.fire({
-            title: "Booking Confirmed!",
-            text: `Your booking for ${
-              car.model
-            } from ${startDate.toLocaleDateString()} to ${endDate.toLocaleDateString()} has been confirmed.`,
-            icon: "success",
-            confirmButtonColor: "#10B981",
+          const response = await api.post("/bookings", {
+            carId: car._id,
+            startDate: startDate.toISOString(),
+            endDate: endDate.toISOString(),
+            totalPrice,
+            email,
           });
 
-          closeModal();
+          if (response.data.success) {
+            Swal.fire({
+              title: "Booking Confirmed!",
+              text: `Your booking for ${
+                car.model
+              } from ${startDate.toLocaleDateString()} to ${endDate.toLocaleDateString()} has been confirmed.`,
+              icon: "success",
+              confirmButtonColor: "#10B981",
+            });
+
+            closeModal();
+          }
         } catch (error) {
           Swal.fire({
             title: "Booking Failed",

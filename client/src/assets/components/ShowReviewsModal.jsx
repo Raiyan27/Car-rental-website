@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
+import api from "../../utils/api";
 import Swal from "sweetalert2";
 import { format } from "date-fns";
 
@@ -10,10 +11,8 @@ const ShowReviewsModal = ({ carId, closeModal }) => {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await axios.get(
-          `https://gari-chai-server.vercel.app/reviews/${carId}`
-        );
-        setReviews(response.data);
+        const response = await api.get(`/reviews/car/${carId}`);
+        setReviews(response.data.data);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching reviews:", error);
@@ -67,7 +66,8 @@ const ShowReviewsModal = ({ carId, closeModal }) => {
                   </div>
                   <div className="text-gray-500 text-sm mb-2">
                     <div className="font-medium text-gray-600">
-                      Owner: {review.owner}
+                      Owner:{" "}
+                      {review.owner?.name || review.owner?.email || "Unknown"}
                     </div>
                     <div className="text-gray-400">
                       Review Date:{" "}
@@ -85,6 +85,11 @@ const ShowReviewsModal = ({ carId, closeModal }) => {
       </div>
     </div>
   );
+};
+
+ShowReviewsModal.propTypes = {
+  carId: PropTypes.string.isRequired,
+  closeModal: PropTypes.func.isRequired,
 };
 
 export default ShowReviewsModal;
